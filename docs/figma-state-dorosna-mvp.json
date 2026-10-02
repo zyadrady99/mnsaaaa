@@ -1,0 +1,66 @@
+{
+  "runId": "dorosna-mvp-2026-10-02",
+  "fileKey": "pvQSfyIMugJE6vA6KpsQrS",
+  "fileUrl": "https://www.figma.com/design/pvQSfyIMugJE6vA6KpsQrS",
+  "planKey": "team::1686072292079973355",
+  "scope": "Full MVP UI/UX design: student and admin",
+  "step": "figma-starter-tool-limit-blocked",
+  "planConstraint": "Starter plan allows 3 pages; full scope is organized with sections across three pages.",
+  "decisions": {
+    "workingName": "دروسنا",
+    "palette": "calm-teal",
+    "cards": "photo-led-soft-border",
+    "density": "student-medium-admin-compact",
+    "coursePage": "activation-first-with-curriculum-preview"
+  },
+  "discovery": {
+    "font": "Noto Sans Arabic",
+    "libraries": ["Material 3 Design Kit", "Simple Design System"],
+    "codeConnect": "none; project has no application source or mappings",
+    "reuseDecision": "Local branded components will be created because library components do not match the RTL Arabic visual/API requirements; Material 3 patterns inform behavior."
+  },
+  "entities": {
+    "pages": {
+      "system": "0:1",
+      "student": "2:4",
+      "admin": "2:5"
+    },
+    "collections": {
+      "primitives": "VariableCollectionId:3:2",
+      "color": "VariableCollectionId:3:22",
+      "dimensions": "VariableCollectionId:3:45",
+      "typography": "VariableCollectionId:3:63"
+    },
+    "styles": {
+      "display": "S:0f8469d06305d70b84878893be7f4de295de273b,",
+      "h1": "S:e70bacae32328bc39011beb002e0ed2d623a30de,",
+      "h2": "S:cfc0945dda238e20dfcb251dac1c4f2633d1790e,",
+      "h3": "S:e7cc8c806f84d1c8d7fb76474d7ec2b4cef84032,",
+      "bodyLarge": "S:b5de176181418833e382508cd3ab1acce600c2ac,",
+      "body": "S:4e43b587bd6a6376f2f06e9477e34911268c9a3c,",
+      "label": "S:4250e2b03afed507af0c28c0264998da58a0bd53,",
+      "caption": "S:b11e9d1c20c0dc716795aa289eb5c3bbadc43eba,",
+      "modalEffect": "S:3bc77f570f945aa9b1916fbfbb04360462c212bc,"
+    },
+    "systemFrames": {
+      "cover": "4:2",
+      "decisions": "4:12",
+      "foundations": "4:60"
+    },
+    "components": {},
+    "screens": {}
+  },
+  "tokenCounts": {
+    "variables": 63,
+    "textStyles": 8,
+    "effectStyles": 1
+  },
+  "blocker": {
+    "type": "Figma Starter MCP call limit",
+    "message": "You've reached the Figma MCP tool call limit on the Starter plan.",
+    "impact": "The component creation call was rejected before execution. No reusable components or product screens have been added yet.",
+    "resumeAt": "Create the reusable RTL components on page 0:1, visually validate foundations/components, then compose student and admin screens."
+  },
+  "pendingValidations": ["foundations-visual", "components", "student-mobile", "student-responsive", "admin", "flows"],
+  "completedSteps": ["product-architecture", "local-spec", "figma-file-created", "figma-discovery", "library-search", "file-structure", "tokens-and-styles", "cover-decisions-foundations-specimens"]
+}
