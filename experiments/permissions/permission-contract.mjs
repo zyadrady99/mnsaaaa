@@ -1,0 +1,73 @@
+// F04 executable operation contract. Product endpoints bind operations server-side.
+const rows = [
+  ['catalog.list','public','catalog','D09/D23','AC03',''],
+  ['catalog.detail','public','publicCourse','D09/D23','AC03',''],
+  ['auth.register','auth','provider','D03/D24','AC01','A01'],
+  ['auth.login','auth','provider','D03/D24','AC01',''],
+  ['auth.logout','auth','provider','D18/D24','AC01',''],
+  ['student.profile','student','self','D24','AC01/AC02',''],
+  ['student.courses','student','self','D09/D16','AC10/AC20','E04'],
+  ['student.progressHistory','student','owner','D09/D11','AC10/AC12',''],
+  ['code.preview','student','previewCode','D04/D06','AC04/AC07',''],
+  ['code.activate','student','activateCode','D04/D06/D07/D28','AC04/AC05/AC08/AC26','K02/K04/E01/E02/E03/E06'],
+  ['video.open','student','learning','D05/D09/D19','AC03/AC10/AC11/AC22',''],
+  ['video.heartbeat','student','watchLease','D09/D19','AC10/AC22',''],
+  ['lesson.position','student','learning','D11','AC12',''],
+  ['lesson.complete','student','learning','D11','AC12','L01'],
+  ['assessment.read','student','assessmentPreview','D05/D09','AC03/AC11/AC13',''],
+  ['attempt.start','student','startAttempt','D10/D13/D15','AC13/AC14','M01'],
+  ['attempt.resume','student','ongoingAttempt','D10/D15/D25','AC14/AC17','M05'],
+  ['attempt.answer','student','ongoingAttempt','D10/D15','AC14/AC15','M02'],
+  ['attempt.submit','student','submitAttempt','D10/D15','AC16/AC17','M03/L02'],
+  ['result.read','student','finalResult','D09/D14/D17','AC18',''],
+  ['result.model','student','examModel','D09/D14/D17','AC18',''],
+  ['admin.catalogManage','admin','admin','D01','AC19',''],
+  ['admin.courseSave','admin','admin','D01/D26','AC19','C01'],
+  ['admin.coursePublish','admin','admin','D26','AC19','C02'],
+  ['admin.courseArchive','admin','admin','D16','AC20','C03'],
+  ['admin.lessonAppend','admin','admin','D25/D26','AC12/AC19','C04'],
+  ['admin.courseCosmetic','admin','admin','D25','AC12/AC20','C05'],
+  ['admin.lessonDraftEdit','admin','unusedDraft','D25','AC12','C06'],
+  ['admin.videoSubmit','admin','admin','D26/D27','AC19/AC25','V01'],
+  ['admin.videoRetry','admin','admin','D25/D26','AC20/AC25','V04'],
+  ['admin.assessmentDraft','admin','admin','D12/D13/D17','AC13/AC19',''],
+  ['admin.assessmentPublish','admin','admin','D17/D25','AC20','M06'],
+  ['admin.codesGenerate','admin','admin','D04/D06','AC21','K01'],
+  ['admin.codesList','admin','admin','D01/D06','AC21',''],
+  ['admin.codesExport','admin','admin','D06','AC21',''],
+  ['admin.codeCancel','admin','admin','D08','AC09','K03'],
+  ['admin.studentList','admin','admin','D01/D18','AC02',''],
+  ['admin.studentRead','admin','studentTarget','D01/D18','AC02',''],
+  ['admin.studentDisable','admin','studentReason','D18','AC02','A02'],
+  ['admin.studentEnable','admin','studentTarget','D18','AC02','A03'],
+  ['admin.studentRecover','admin','studentReason','D24','AC01','A04'],
+  ['admin.accessWithdraw','admin','withdraw','D08','AC09','E05'],
+  ['admin.accessExtend','admin','extend','D08/D18','AC09','E07'],
+  ['admin.lessonOverride','admin','studentReason','D12','AC11','L03'],
+  ['admin.settings','admin','admin','D01/D22','AC19',''],
+  ['admin.audit','admin','admin','D08/D18/D24','AC02/AC09',''],
+  ['internal.autosubmit','internal','dueAttempt','D15','AC15/AC16','M04/L02'],
+  ['internal.videoStatus','internal','currentUpload','D26/D27','AC20/AC25','V02/V03'],
+];
+export const operations = Object.freeze(Object.fromEntries(rows.map(([id,audience,guard,decisions,acceptance,transitions])=>
+  [id,Object.freeze({id,audience,guard,decisions,acceptance,transitions})])));
+
+// Response allowlists. No recursive object serialization or SELECT * responses.
+export const projections = Object.freeze({
+  course: Object.freeze(['id','title','description','teacher_id','grade_id','subject_id','cover_ref']),
+  lesson: Object.freeze(['id','title','description','position']),
+  profile: Object.freeze(['id','full_name','phone','grade_id']),
+  access: Object.freeze(['course_id','started_at','access_until','withdrawn_at']),
+  progress: Object.freeze(['lesson_id','completed_at','position_seconds']),
+  attempt: Object.freeze(['id','assessment_id','version_id','kind','attempt_number','status','started_at','deadline_at','submitted_at']),
+  question: Object.freeze(['id','position','prompt','points']),
+  option: Object.freeze(['id','position','label']),
+  assessment: Object.freeze(['assessment_id','kind','duration_seconds','max_attempts','pass_percent','opens_at','closes_at']),
+  result: Object.freeze(['attempt_id','earned_points','possible_points','passed','graded_at']),
+  model: Object.freeze(['question_id','correct_option_id','explanation']),
+  codeHistory: Object.freeze(['course_id','activated_at','duration_days','masked_suffix']),
+});
+export function project(kind, source) {
+  const keys=Object.hasOwn(projections,kind)?projections[kind]:null; if(!keys) throw new Error('unknown_projection');
+  return Object.fromEntries(keys.filter(k=>Object.hasOwn(source,k)).map(k=>[k,source[k]]));
+}

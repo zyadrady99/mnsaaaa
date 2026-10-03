@@ -1,0 +1,515 @@
+{
+  "phase": "F05",
+  "date": "2026-10-02",
+  "scope": "local RTL frontend with public development fixtures; no real authentication or enrollment",
+  "previewUrl": "http://127.0.0.1:3000/",
+  "commands": {
+    "build": "pass",
+    "lint": "pass",
+    "typecheck": "pass"
+  },
+  "http": {
+    "routes": [
+      {
+        "path": "/",
+        "status": 200,
+        "rtl": true,
+        "h1": 1
+      },
+      {
+        "path": "/courses",
+        "status": 200,
+        "rtl": true,
+        "h1": 1
+      },
+      {
+        "path": "/teachers",
+        "status": 200,
+        "rtl": true,
+        "h1": 1
+      },
+      {
+        "path": "/login",
+        "status": 200,
+        "rtl": true,
+        "h1": 1
+      },
+      {
+        "path": "/register",
+        "status": 200,
+        "rtl": true,
+        "h1": 1
+      },
+      {
+        "path": "/my-courses",
+        "status": 200,
+        "rtl": true,
+        "h1": 1
+      },
+      {
+        "path": "/account",
+        "status": 200,
+        "rtl": true,
+        "h1": 1
+      },
+      {
+        "path": "/help",
+        "status": 200,
+        "rtl": true,
+        "h1": 1
+      },
+      {
+        "path": "/courses/physics-electricity",
+        "status": 200,
+        "rtl": true,
+        "h1": 1
+      },
+      {
+        "path": "/courses/chemistry-elements",
+        "status": 200,
+        "rtl": true,
+        "h1": 1
+      },
+      {
+        "path": "/courses/math-calculus",
+        "status": 200,
+        "rtl": true,
+        "h1": 1
+      },
+      {
+        "path": "/courses/arabic-reading",
+        "status": 200,
+        "rtl": true,
+        "h1": 1
+      },
+      {
+        "path": "/courses/physics-motion",
+        "status": 200,
+        "rtl": true,
+        "h1": 1
+      },
+      {
+        "path": "/courses/chemistry-atom",
+        "status": 200,
+        "rtl": true,
+        "h1": 1
+      },
+      {
+        "path": "/courses/math-functions",
+        "status": 200,
+        "rtl": true,
+        "h1": 1
+      },
+      {
+        "path": "/courses/arabic-foundations",
+        "status": 200,
+        "rtl": true,
+        "h1": 1
+      },
+      {
+        "path": "/teachers/ahmed-hassan",
+        "status": 200,
+        "rtl": true,
+        "h1": 1
+      },
+      {
+        "path": "/teachers/mariam-adel",
+        "status": 200,
+        "rtl": true,
+        "h1": 1
+      },
+      {
+        "path": "/teachers/omar-salem",
+        "status": 200,
+        "rtl": true,
+        "h1": 1
+      },
+      {
+        "path": "/teachers/youssef-ali",
+        "status": 200,
+        "rtl": true,
+        "h1": 1
+      },
+      {
+        "path": "/courses/not-a-course",
+        "status": 404,
+        "custom404": true
+      },
+      {
+        "path": "/teachers/not-a-teacher",
+        "status": 404,
+        "custom404": true
+      },
+      {
+        "path": "/missing-page",
+        "status": 404,
+        "custom404": true
+      }
+    ],
+    "pass": true
+  },
+  "responsive": {
+    "count": 30,
+    "pass": true,
+    "cases": [
+      {
+        "route": "/",
+        "width": 375,
+        "height": 812,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/",
+        "width": 390,
+        "height": 844,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/",
+        "width": 768,
+        "height": 1024,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/",
+        "width": 1024,
+        "height": 768,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/",
+        "width": 1440,
+        "height": 1000,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/",
+        "width": 844,
+        "height": 390,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/teachers",
+        "width": 375,
+        "height": 812,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/teachers",
+        "width": 390,
+        "height": 844,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/teachers",
+        "width": 768,
+        "height": 1024,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/teachers",
+        "width": 1024,
+        "height": 768,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/teachers",
+        "width": 1440,
+        "height": 1000,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/teachers",
+        "width": 844,
+        "height": 390,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/courses/physics-electricity",
+        "width": 375,
+        "height": 812,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/courses/physics-electricity",
+        "width": 390,
+        "height": 844,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/courses/physics-electricity",
+        "width": 768,
+        "height": 1024,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/courses/physics-electricity",
+        "width": 1024,
+        "height": 768,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/courses/physics-electricity",
+        "width": 1440,
+        "height": 1000,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/courses/physics-electricity",
+        "width": 844,
+        "height": 390,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/register",
+        "width": 375,
+        "height": 812,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/register",
+        "width": 390,
+        "height": 844,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/register",
+        "width": 768,
+        "height": 1024,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/register",
+        "width": 1024,
+        "height": 768,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/register",
+        "width": 1440,
+        "height": 1000,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/register",
+        "width": 844,
+        "height": 390,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/login",
+        "width": 375,
+        "height": 812,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/login",
+        "width": 390,
+        "height": 844,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/login",
+        "width": 768,
+        "height": 1024,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/login",
+        "width": 1024,
+        "height": 768,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/login",
+        "width": 1440,
+        "height": 1000,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      },
+      {
+        "route": "/login",
+        "width": 844,
+        "height": 390,
+        "overflow": false,
+        "rtl": true,
+        "overlay": false
+      }
+    ]
+  },
+  "browser": {
+    "tool": "agent-browser 0.38.2",
+    "engine": "Microsoft Edge, isolated headless context",
+    "inAppBrowser": "tool failed before setup: failed to write kernel assets; preview open request queued",
+    "errorsObserved": 0,
+    "closedTestContext": true
+  },
+  "flows": [
+    {
+      "id": "B01",
+      "description": "Home to catalog, physics/grade-3 filter yields one course",
+      "pass": true
+    },
+    {
+      "id": "B02",
+      "description": "Course details and back preserve query and selections",
+      "pass": true
+    },
+    {
+      "id": "B03",
+      "description": "Empty course search shows recovery state",
+      "pass": true
+    },
+    {
+      "id": "B04",
+      "description": "Arabic teacher search normalizes hamza and yields Ahmed Hassan",
+      "pass": true
+    },
+    {
+      "id": "B05",
+      "description": "Mobile bottom navigation switches and marks teachers",
+      "pass": true
+    },
+    {
+      "id": "B06",
+      "description": "Curriculum accordion opens second unit",
+      "pass": true
+    },
+    {
+      "id": "B07",
+      "description": "Course to login preserves known course return link",
+      "pass": true
+    },
+    {
+      "id": "B08",
+      "description": "Registration empty fields show four errors and focus summary",
+      "pass": true
+    },
+    {
+      "id": "B09",
+      "description": "Arabic phone registration shape accepted, password toggle works, preview notice and password cleared; no POST captured",
+      "pass": true
+    },
+    {
+      "id": "B10",
+      "description": "Login empty fields show two errors and focus summary",
+      "pass": true
+    },
+    {
+      "id": "B11",
+      "description": "+20 phone login shape accepted, preview notice with return link; no POST captured",
+      "pass": true
+    },
+    {
+      "id": "B12",
+      "description": "Home search focus is above bottom navigation on mobile",
+      "pass": true
+    }
+  ],
+  "accessibility": {
+    "engine": "axe-core 4.12.1",
+    "observed": [
+      {
+        "path": "/",
+        "violations": 0,
+        "incompleteRules": 1,
+        "incompleteNodes": 4
+      },
+      {
+        "path": "/courses",
+        "violations": 0,
+        "incompleteRules": 0
+      },
+      {
+        "path": "/teachers",
+        "violations": 0,
+        "incompleteRules": 0
+      },
+      {
+        "path": "/courses/physics-electricity",
+        "violations": 0,
+        "incompleteRules": 0
+      },
+      {
+        "path": "/register",
+        "violations": 0,
+        "incompleteRules": 0
+      },
+      {
+        "path": "/login",
+        "violations": 0,
+        "incompleteRules": 0
+      }
+    ],
+    "manualDecorativeSymbolContrast": [
+      6.81,
+      6.54,
+      5.22,
+      6
+    ],
+    "fullComplianceClaim": false,
+    "browserZoom200": "not verified",
+    "actualScreenReader": "not verified"
+  },
+  "paidServicesActivated": false,
+  "realAccountsOrSessionsCreated": false,
+  "productionReady": false,
+  "pass": true
+}

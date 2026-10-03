@@ -1,0 +1,153 @@
+{
+  "scope": "local-provider-recovery-freeze",
+  "startedAt": "2026-10-02T14:49:21.690Z",
+  "requests": [
+    {
+      "method": "POST",
+      "route": "/admin/users",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/user",
+      "status": 403,
+      "errorCode": "session_not_found"
+    },
+    {
+      "method": "PUT",
+      "route": "/user",
+      "status": 403,
+      "errorCode": "session_not_found"
+    },
+    {
+      "method": "PUT",
+      "route": "/user",
+      "status": 403,
+      "errorCode": "session_not_found"
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=refresh_token",
+      "status": 400,
+      "errorCode": "refresh_token_not_found"
+    },
+    {
+      "method": "PUT",
+      "route": "/user",
+      "status": 403,
+      "errorCode": "session_not_found"
+    },
+    {
+      "method": "PUT",
+      "route": "/user",
+      "status": 403,
+      "errorCode": "session_not_found"
+    },
+    {
+      "method": "PUT",
+      "route": "/user",
+      "status": 403,
+      "errorCode": "session_not_found"
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=refresh_token",
+      "status": 400,
+      "errorCode": "refresh_token_not_found"
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 400,
+      "errorCode": "user_banned"
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 400,
+      "errorCode": "user_banned"
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 400,
+      "errorCode": "invalid_credentials"
+    },
+    {
+      "method": "PUT",
+      "route": "/user",
+      "status": 403,
+      "errorCode": "session_not_found"
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "DELETE",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    }
+  ],
+  "checks": [
+    {
+      "name": "admin freeze and password rotation",
+      "passed": true
+    },
+    {
+      "name": "old JWT rejects password phone and email mutations",
+      "passed": true
+    },
+    {
+      "name": "provider login remains frozen while applying new password",
+      "passed": true
+    },
+    {
+      "name": "new password login after explicit unfreeze; old JWT still rejected",
+      "passed": true
+    }
+  ],
+  "cleanup": true,
+  "passed": true,
+  "finishedAt": "2026-10-02T14:49:25.108Z"
+}

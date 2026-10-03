@@ -1,0 +1,11 @@
+project_id = "dorosna-auth-spike"
+[api]
+port = 54321
+schemas = ["public", "graphql_public"]
+auto_expose_new_tables = false
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 17
+[db.seed]
+enabled = false

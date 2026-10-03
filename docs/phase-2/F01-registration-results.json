@@ -1,0 +1,2036 @@
+{
+  "scope": "local-registration-faults-limits-and-direct-access",
+  "startedAt": "2026-10-02T16:13:15.270Z",
+  "nodeVersion": "v22.19.0",
+  "checks": [
+    {
+      "id": "S01",
+      "description": "validate required fields and normalize Arabic Persian Egyptian and international phone forms",
+      "passed": true,
+      "durationMs": 23,
+      "evidence": {
+        "equivalentFormats": 7,
+        "requiredFields": 4,
+        "unknownGradeRejected": true,
+        "roleFieldRejected": true,
+        "weakPasswordRejected": true
+      }
+    },
+    {
+      "id": "S02",
+      "description": "full registration creates one confirmed phone identity and a trusted student profile",
+      "passed": true,
+      "durationMs": 323,
+      "evidence": {
+        "trustedRole": "student",
+        "nameAndGradeStored": true,
+        "canonicalPhone": true,
+        "emailRequired": false,
+        "otpRequests": 0,
+        "opaqueSession": true
+      }
+    },
+    {
+      "id": "S03",
+      "description": "concurrent phone aliases and idempotent retries cannot create or overwrite a second identity",
+      "passed": true,
+      "durationMs": 681,
+      "evidence": {
+        "competingRequests": 2,
+        "providerCreates": 1,
+        "winnerPasswordPreserved": true,
+        "retryPasswordIgnored": true,
+        "changedRequestRejected": true,
+        "genericDuplicateResponse": true,
+        "forcedConcurrentKeyConflictRejected": true
+      }
+    },
+    {
+      "id": "S04",
+      "description": "public native Auth endpoints reject clients including leaked JWT and forged headers",
+      "passed": true,
+      "durationMs": 29,
+      "evidence": {
+        "deniedPublicAuthRequests": 9,
+        "status": 401,
+        "spoofedConsumerHeadersRejected": true,
+        "serverAuthHealthy": true,
+        "priorInFlightCounterexampleRecorded": true,
+        "boundary": "owned local Kong, four Auth services"
+      }
+    },
+    {
+      "id": "S05",
+      "description": "gateway binds the current profile and rejects student admin routes and foreign identifiers",
+      "passed": true,
+      "durationMs": 32,
+      "evidence": {
+        "profileBoundToSession": true,
+        "foreignIdentifierRejected": true,
+        "studentAdminDenied": true
+      }
+    },
+    {
+      "id": "S06",
+      "description": "real Data API denies private own foreign write and RPC access with a valid JWT",
+      "passed": true,
+      "durationMs": 61,
+      "evidence": {
+        "dataApiReady": true,
+        "privateSchemaDeliberatelyExposedForNegativeProbe": true,
+        "actualPermissionDenials": 5,
+        "status": 403,
+        "postgresCode": "42501",
+        "jwtValidAtProbe": true
+      }
+    },
+    {
+      "id": "S07",
+      "description": "login limits are atomic shared across processes restart persistent and ignore spoofed IP",
+      "passed": true,
+      "durationMs": 1426,
+      "evidence": {
+        "distinctWorkerProcesses": 2,
+        "actualProcessRestart": true,
+        "concurrentAttempts": 6,
+        "admitted": 3,
+        "denied": 3,
+        "restartPreservedLimit": true,
+        "forwardedIpIgnored": true,
+        "retryAfterPresent": true,
+        "windowResetRestoresLogin": true,
+        "wrongAndUnknownSameBody": true
+      }
+    },
+    {
+      "id": "S08",
+      "description": "registration and recovery guessing limits cannot be bypassed by changing request keys",
+      "passed": true,
+      "durationMs": 133,
+      "evidence": {
+        "registrationAdmitted": 3,
+        "registrationDenied": 3,
+        "exchangeGuessingBounded": true,
+        "passwordGuessingBounded": true,
+        "countersContainNoRawIdentifiers": true
+      }
+    },
+    {
+      "id": "S09",
+      "description": "real Auth create followed by profile failure is reconciled without repeating password or creation",
+      "passed": true,
+      "durationMs": 369,
+      "evidence": {
+        "realProviderCreation": true,
+        "failedProfileBlockedLogin": true,
+        "providerFrozenUntilReconciliation": true,
+        "repeatCreates": 0,
+        "originalPasswordPreserved": true,
+        "adminReconciliationRecorded": true,
+        "completedReviewDoesNotTouchProvider": true
+      }
+    },
+    {
+      "id": "S10",
+      "description": "actual process termination at four registration phases remains recoverable and rejects a live-worker takeover",
+      "passed": true,
+      "durationMs": 3023,
+      "evidence": {
+        "phases": [
+          {
+            "phase": "registration_reserved",
+            "processTerminated": true,
+            "liveTakeoverDenied": true,
+            "recovered": true
+          },
+          {
+            "phase": "registration_auth_created",
+            "processTerminated": true,
+            "liveTakeoverDenied": true,
+            "recovered": true
+          },
+          {
+            "phase": "registration_profiled",
+            "processTerminated": true,
+            "liveTakeoverDenied": true,
+            "recovered": true
+          },
+          {
+            "phase": "registration_unfrozen",
+            "processTerminated": true,
+            "liveTakeoverDenied": true,
+            "recovered": true
+          }
+        ],
+        "passwordsWrittenToDisk": false,
+        "unknownProviderCreateAutomaticallyRetried": false
+      }
+    },
+    {
+      "id": "S11",
+      "description": "actual process termination at six recovery phases is fenced and an audited fresh grant restores access",
+      "passed": true,
+      "durationMs": 7790,
+      "evidence": {
+        "phases": [
+          {
+            "phase": "recovery_prepared",
+            "processTerminated": true,
+            "concurrentReconcileDenied": true,
+            "staleAppSessionDenied": true,
+            "freshGrantRestoredLogin": true
+          },
+          {
+            "phase": "recovery_frozen",
+            "processTerminated": true,
+            "concurrentReconcileDenied": true,
+            "staleAppSessionDenied": true,
+            "freshGrantRestoredLogin": true
+          },
+          {
+            "phase": "recovery_claimed",
+            "processTerminated": true,
+            "concurrentReconcileDenied": true,
+            "staleAppSessionDenied": true,
+            "freshGrantRestoredLogin": true
+          },
+          {
+            "phase": "recovery_password_set",
+            "processTerminated": true,
+            "concurrentReconcileDenied": true,
+            "staleAppSessionDenied": true,
+            "freshGrantRestoredLogin": true
+          },
+          {
+            "phase": "recovery_applied",
+            "processTerminated": true,
+            "concurrentReconcileDenied": true,
+            "staleAppSessionDenied": true,
+            "freshGrantRestoredLogin": true
+          },
+          {
+            "phase": "recovery_unfrozen",
+            "processTerminated": true,
+            "concurrentReconcileDenied": true,
+            "staleAppSessionDenied": true,
+            "freshGrantRestoredLogin": true
+          }
+        ],
+        "actualWorkerKills": 6,
+        "providerUpdatesReal": true,
+        "reconciliationAuditRecorded": true
+      }
+    },
+    {
+      "id": "S12",
+      "description": "revoked JWT still cannot read private data and all seven private tables enforce RLS",
+      "passed": true,
+      "durationMs": 133,
+      "evidence": {
+        "revokedJwtDataDenied": true,
+        "actualPermissionCode": "42501",
+        "privateTables": 7,
+        "forcedRls": true,
+        "runtimeAuthReadDenied": true,
+        "credentialFreeAudit": true
+      }
+    }
+  ],
+  "requests": [
+    {
+      "method": "POST",
+      "route": "/admin/users",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/register",
+      "status": 422,
+      "code": "invalid_fields"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/register",
+      "status": 422,
+      "code": "invalid_fields"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/register",
+      "status": 422,
+      "code": "invalid_fields"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/register",
+      "status": 422,
+      "code": "invalid_fields"
+    },
+    {
+      "method": "POST",
+      "route": "/admin/users",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/register",
+      "status": 202,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "GET",
+      "route": "/me",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/register",
+      "status": 202,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "route": "/admin/users",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/register",
+      "status": 202,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 400,
+      "errorCode": "invalid_credentials"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 401,
+      "code": "invalid_credentials"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/register",
+      "status": 202,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/register",
+      "status": 409,
+      "code": "request_conflict"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/register",
+      "status": 202,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/register",
+      "status": 409,
+      "code": "request_conflict"
+    },
+    {
+      "method": "POST",
+      "route": "/admin/users",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/register",
+      "status": 202,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 401,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/user",
+      "status": 401,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/user",
+      "status": 401,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/user",
+      "status": 401,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/otp",
+      "status": 401,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/signup",
+      "status": 401,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/verify",
+      "status": 401,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/authorize",
+      "status": 401,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/health",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries",
+      "status": 403,
+      "code": "forbidden"
+    },
+    {
+      "source": "gateway",
+      "method": "GET",
+      "route": "/me",
+      "status": 400,
+      "code": "query_not_allowed"
+    },
+    {
+      "source": "gateway",
+      "method": "GET",
+      "route": "/me",
+      "status": 200,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/registrations/reconcile",
+      "status": 403,
+      "code": "forbidden"
+    },
+    {
+      "source": "data-api",
+      "method": "GET",
+      "route": "/accounts",
+      "status": 403,
+      "code": "42501"
+    },
+    {
+      "source": "data-api",
+      "method": "GET",
+      "route": "/accounts",
+      "status": 403,
+      "code": "42501"
+    },
+    {
+      "source": "data-api",
+      "method": "PATCH",
+      "route": "/accounts",
+      "status": 403,
+      "code": "42501"
+    },
+    {
+      "source": "data-api",
+      "method": "GET",
+      "route": "/registrations",
+      "status": 403,
+      "code": "42501"
+    },
+    {
+      "source": "data-api",
+      "method": "POST",
+      "route": "/rpc/f01_rpc_probe",
+      "status": 403,
+      "code": "42501"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 429,
+      "code": "rate_limited"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 429,
+      "code": "rate_limited"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 429,
+      "code": "rate_limited"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 401,
+      "code": "invalid_credentials"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 401,
+      "code": "invalid_credentials"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 401,
+      "code": "invalid_credentials"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 429,
+      "code": "rate_limited"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 401,
+      "code": "invalid_credentials"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 401,
+      "code": "invalid_credentials"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/register",
+      "status": 202,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/register",
+      "status": 202,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/register",
+      "status": 202,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/register",
+      "status": 429,
+      "code": "rate_limited"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/register",
+      "status": 429,
+      "code": "rate_limited"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/register",
+      "status": 429,
+      "code": "rate_limited"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/exchange",
+      "status": 400,
+      "code": "invalid_recovery"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/exchange",
+      "status": 400,
+      "code": "invalid_recovery"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/exchange",
+      "status": 400,
+      "code": "invalid_recovery"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/exchange",
+      "status": 429,
+      "code": "rate_limited"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 400,
+      "code": "invalid_recovery"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 400,
+      "code": "invalid_recovery"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 400,
+      "code": "invalid_recovery"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 429,
+      "code": "rate_limited"
+    },
+    {
+      "method": "POST",
+      "route": "/admin/users",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/register",
+      "status": 202,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 401,
+      "code": "invalid_credentials"
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 400,
+      "errorCode": "user_banned"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/register",
+      "status": 202,
+      "code": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/registrations/reconcile",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/registrations/reconcile",
+      "status": 200,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/registrations/reconcile",
+      "status": 409,
+      "code": "operation_busy"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 401,
+      "code": "invalid_credentials"
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 404,
+      "errorCode": "user_not_found"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/registrations/reconcile",
+      "status": 200,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/registrations/reconcile",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "route": "/admin/users",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/register",
+      "status": 202,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/registrations/reconcile",
+      "status": 409,
+      "code": "operation_busy"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 401,
+      "code": "invalid_credentials"
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/registrations/reconcile",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/registrations/reconcile",
+      "status": 409,
+      "code": "operation_busy"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 401,
+      "code": "invalid_credentials"
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/registrations/reconcile",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/registrations/reconcile",
+      "status": 409,
+      "code": "operation_busy"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 401,
+      "code": "invalid_credentials"
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/registrations/reconcile",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "route": "/admin/users",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries/reconcile",
+      "status": 409,
+      "code": "operation_busy"
+    },
+    {
+      "source": "gateway",
+      "method": "GET",
+      "route": "/me",
+      "status": 401,
+      "code": "unauthorized"
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries/reconcile",
+      "status": 201,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/exchange",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 400,
+      "errorCode": "invalid_credentials"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 401,
+      "code": "invalid_credentials"
+    },
+    {
+      "method": "POST",
+      "route": "/admin/users",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries/reconcile",
+      "status": 409,
+      "code": "operation_busy"
+    },
+    {
+      "source": "gateway",
+      "method": "GET",
+      "route": "/me",
+      "status": 401,
+      "code": "unauthorized"
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries/reconcile",
+      "status": 201,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/exchange",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 400,
+      "errorCode": "invalid_credentials"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 401,
+      "code": "invalid_credentials"
+    },
+    {
+      "method": "POST",
+      "route": "/admin/users",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries",
+      "status": 201,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/exchange",
+      "status": 200,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries/reconcile",
+      "status": 409,
+      "code": "operation_busy"
+    },
+    {
+      "source": "gateway",
+      "method": "GET",
+      "route": "/me",
+      "status": 401,
+      "code": "unauthorized"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 400,
+      "code": "invalid_recovery"
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries/reconcile",
+      "status": 201,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/exchange",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 400,
+      "errorCode": "invalid_credentials"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 401,
+      "code": "invalid_credentials"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 400,
+      "code": "invalid_recovery"
+    },
+    {
+      "method": "POST",
+      "route": "/admin/users",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries",
+      "status": 201,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/exchange",
+      "status": 200,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries/reconcile",
+      "status": 409,
+      "code": "operation_busy"
+    },
+    {
+      "source": "gateway",
+      "method": "GET",
+      "route": "/me",
+      "status": 401,
+      "code": "unauthorized"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 400,
+      "code": "invalid_recovery"
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries/reconcile",
+      "status": 201,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/exchange",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 400,
+      "errorCode": "invalid_credentials"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 401,
+      "code": "invalid_credentials"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 400,
+      "code": "invalid_recovery"
+    },
+    {
+      "method": "POST",
+      "route": "/admin/users",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries",
+      "status": 201,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/exchange",
+      "status": 200,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries/reconcile",
+      "status": 409,
+      "code": "operation_busy"
+    },
+    {
+      "source": "gateway",
+      "method": "GET",
+      "route": "/me",
+      "status": 401,
+      "code": "unauthorized"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 400,
+      "code": "invalid_recovery"
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries/reconcile",
+      "status": 201,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/exchange",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 400,
+      "errorCode": "invalid_credentials"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 401,
+      "code": "invalid_credentials"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 400,
+      "code": "invalid_recovery"
+    },
+    {
+      "method": "POST",
+      "route": "/admin/users",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries",
+      "status": 201,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/exchange",
+      "status": 200,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries/reconcile",
+      "status": 409,
+      "code": "operation_busy"
+    },
+    {
+      "source": "gateway",
+      "method": "GET",
+      "route": "/me",
+      "status": 401,
+      "code": "unauthorized"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 400,
+      "code": "invalid_recovery"
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries/reconcile",
+      "status": 201,
+      "code": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/exchange",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "code": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 400,
+      "errorCode": "invalid_credentials"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 401,
+      "code": "invalid_credentials"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 400,
+      "code": "invalid_recovery"
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries",
+      "status": 201,
+      "code": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "DELETE",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 404,
+      "errorCode": "user_not_found"
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "DELETE",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 404,
+      "errorCode": "user_not_found"
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "DELETE",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 404,
+      "errorCode": "user_not_found"
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "DELETE",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 404,
+      "errorCode": "user_not_found"
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "DELETE",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 404,
+      "errorCode": "user_not_found"
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "DELETE",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 404,
+      "errorCode": "user_not_found"
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "DELETE",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 404,
+      "errorCode": "user_not_found"
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "DELETE",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 404,
+      "errorCode": "user_not_found"
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "DELETE",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 404,
+      "errorCode": "user_not_found"
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "DELETE",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 404,
+      "errorCode": "user_not_found"
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "DELETE",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 404,
+      "errorCode": "user_not_found"
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "DELETE",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 404,
+      "errorCode": "user_not_found"
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "DELETE",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 404,
+      "errorCode": "user_not_found"
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "DELETE",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 404,
+      "errorCode": "user_not_found"
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "DELETE",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 404,
+      "errorCode": "user_not_found"
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 404,
+      "errorCode": "user_not_found"
+    }
+  ],
+  "cleanup": {
+    "rowsDeleted": true,
+    "usersDeleted": true,
+    "syntheticUsersDeleted": 15,
+    "runtimeRoleDropped": true,
+    "completed": true
+  },
+  "limitations": [
+    "Local Kong guard only; managed Supabase equivalent not proven",
+    "HTTP loopback only; production HTTPS and browser checks pending",
+    "No Storage, product data, subscriptions, UI or final F03 schema",
+    "Requests admitted before an Auth boundary change need a separate deployment drain policy",
+    "Ambiguous missing provider user stays locked for review; no automatic retry of an unknown create request",
+    "Rate thresholds and grade fixtures are experiment values, not approved production policy"
+  ],
+  "passed": true,
+  "finishedAt": "2026-10-02T16:13:32.945Z"
+}

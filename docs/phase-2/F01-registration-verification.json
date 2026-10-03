@@ -1,0 +1,111 @@
+{
+  "scope": "post-registration-local-state",
+  "checkedAt": "2026-10-02T16:17:48.847Z",
+  "rows": {
+    "accounts": 0,
+    "sessions": 0,
+    "recoveries": 0,
+    "audit": 0,
+    "registrations": 0,
+    "request_limits": 0,
+    "synthetic_auth_users": 0,
+    "temporary_runtime_roles": 0
+  },
+  "gradeConfigurationRows": 2,
+  "privateTables": {
+    "count": 7,
+    "allRlsEnabledAndForced": true
+  },
+  "clientSchemaUsage": [
+    {
+      "role": "anon",
+      "allowed": false
+    },
+    {
+      "role": "authenticated",
+      "allowed": false
+    },
+    {
+      "role": "service_role",
+      "allowed": false
+    }
+  ],
+  "serverRole": {
+    "exists": true,
+    "canLogin": false,
+    "superuser": false,
+    "bypassRls": false
+  },
+  "containers": [
+    {
+      "name": "supabase_db_dorosna-auth-spike",
+      "image": "public.ecr.aws/supabase/postgres:17.11.0.002",
+      "running": true,
+      "health": "healthy",
+      "publishedPorts": [
+        {
+          "port": "5432/tcp",
+          "host": "127.0.0.1",
+          "hostPort": "54322"
+        }
+      ]
+    },
+    {
+      "name": "supabase_auth_dorosna-auth-spike",
+      "image": "public.ecr.aws/supabase/gotrue:v2.197.0",
+      "running": true,
+      "health": "healthy",
+      "publishedPorts": []
+    },
+    {
+      "name": "supabase_kong_dorosna-auth-spike",
+      "image": "public.ecr.aws/supabase/kong:2.8.1",
+      "running": true,
+      "health": "healthy",
+      "publishedPorts": [
+        {
+          "port": "8000/tcp",
+          "host": "127.0.0.1",
+          "hostPort": "54321"
+        }
+      ]
+    },
+    {
+      "name": "supabase_rest_dorosna-auth-spike",
+      "image": "public.ecr.aws/supabase/postgrest:v16.4",
+      "running": true,
+      "health": null,
+      "publishedPorts": []
+    }
+  ],
+  "phoneProvider": {
+    "enabled": true,
+    "smsProviderConfigured": false
+  },
+  "http": {
+    "publicAuthTokenStatus": 401,
+    "serverAuthHealthStatus": 200,
+    "dataApiRootStatus": 200,
+    "privateDataServiceRoleStatus": 403,
+    "privateDataPermissionCode": "42501"
+  },
+  "advisors": {
+    "exitCode": 0,
+    "noIssuesReported": false,
+    "jsonReturned": true,
+    "findings": [
+      {
+        "name": "unused_index",
+        "level": "INFO",
+        "categories": [
+          "PERFORMANCE"
+        ],
+        "schema": "auth_spike_private",
+        "table": "registrations"
+      }
+    ]
+  },
+  "resultChecksPassed": 12,
+  "preGuardCounterexamplePreserved": true,
+  "passed": true
+}

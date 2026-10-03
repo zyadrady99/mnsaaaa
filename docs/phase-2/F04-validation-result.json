@@ -1,0 +1,108 @@
+{
+  "phase": "F04",
+  "scope": "operation guards and own-history SQL read prototype; fixture sessions, no HTTP/provider authentication",
+  "date": "2026-10-02",
+  "operations": 48,
+  "checks": [
+    {
+      "id": "C01-contract-covers-34-F02-transitions",
+      "pass": true
+    },
+    {
+      "id": "C02-unknown-operation-and-internal-route-denied",
+      "pass": true
+    },
+    {
+      "id": "A01-forged-role-and-owner-body-ignored",
+      "pass": true
+    },
+    {
+      "id": "A02-missing-session-denied",
+      "pass": true
+    },
+    {
+      "id": "A03-live-status-locks-and-epoch-checked",
+      "pass": true
+    },
+    {
+      "id": "A04-admin-command-uses-verified-actor-and-only-title",
+      "pass": true
+    },
+    {
+      "id": "O01-other-student-results-and-progress-denied",
+      "pass": true
+    },
+    {
+      "id": "E01-expired-access-history-allowed-content-denied",
+      "pass": true
+    },
+    {
+      "id": "M01-expired-exam-resume-allowed-homework-denied",
+      "pass": true
+    },
+    {
+      "id": "M02-withdrawal-does-not-use-expiry-exception",
+      "pass": true
+    },
+    {
+      "id": "M03-model-hidden-until-close-at-microsecond-boundary",
+      "pass": true
+    },
+    {
+      "id": "M04-exam-limit-and-malformed-facts-fail-closed",
+      "pass": true
+    },
+    {
+      "id": "C03-used-or-missing-draft-edit-denied",
+      "pass": true
+    },
+    {
+      "id": "L01-lesson-gate-and-targeted-override",
+      "pass": true
+    },
+    {
+      "id": "S01-support-reason-and-disabled-target",
+      "pass": true
+    },
+    {
+      "id": "K01-used-owner-replay-survives-archive-no-other-owner",
+      "pass": true
+    },
+    {
+      "id": "W01-worker-finalization-independent-of-disabled-account",
+      "pass": true
+    },
+    {
+      "id": "W02-provider-event-requires-current-generation",
+      "pass": true
+    },
+    {
+      "id": "P01-response-allowlists-exclude-answer-keys-and-code-secrets",
+      "pass": true
+    },
+    {
+      "id": "DB01-invoker-views-return-own-history-only",
+      "pass": true
+    },
+    {
+      "id": "DB02-reader-has-no-write-or-secret-column-privileges",
+      "pass": true
+    },
+    {
+      "id": "DB03-live-account-and-epoch-still-limit-reader",
+      "pass": true
+    },
+    {
+      "id": "DB04-transaction-scope-does-not-leak-into-reused-connection",
+      "pass": true
+    },
+    {
+      "id": "DB05-browser-roles-have-no-private-schema-entry",
+      "pass": true
+    }
+  ],
+  "databaseRemoved": true,
+  "roleRemoved": true,
+  "baselineCountsUnchanged": true,
+  "pass": true
+}
