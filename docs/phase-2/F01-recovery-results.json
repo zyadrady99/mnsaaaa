@@ -1,0 +1,891 @@
+{
+  "scope": "local-server-gateway-and-in-person-recovery",
+  "startedAt": "2026-10-02T15:38:45.455Z",
+  "cliVersion": "2.119.0",
+  "authImage": "gotrue:v2.197.0",
+  "pgVersion": "8.23.1",
+  "checks": [
+    {
+      "id": "R01",
+      "description": "private schema, RLS and restricted server database role",
+      "passed": true,
+      "durationMs": 42,
+      "evidence": {
+        "privateTables": 7,
+        "rlsForced": true,
+        "clientRolesDenied": 3,
+        "serverSuperuser": false,
+        "serverAuthTableDenied": true,
+        "auditDeleteDenied": true
+      }
+    },
+    {
+      "id": "R02",
+      "description": "two devices with opaque HttpOnly sessions and server-only provider tokens",
+      "passed": true,
+      "durationMs": 244,
+      "evidence": {
+        "devices": 2,
+        "opaqueCookies": true,
+        "httpOnly": true,
+        "sameSite": "Strict",
+        "providerTokensInResponses": false,
+        "loopbackHttpSecureCookie": false
+      }
+    },
+    {
+      "id": "R03",
+      "description": "student metadata forgery cannot gain admin recovery permission",
+      "passed": true,
+      "durationMs": 65,
+      "evidence": {
+        "trustedRole": "student",
+        "metadataAdminRejected": true,
+        "unverifiedRecoveryRejected": true,
+        "crossOriginRejected": true
+      }
+    },
+    {
+      "id": "R04",
+      "description": "admin issuance locks the account and revokes every app session",
+      "passed": true,
+      "durationMs": 118,
+      "evidence": {
+        "authEpoch": 1,
+        "revokedDevices": 2,
+        "tokenEntropyBits": 256,
+        "storedTokenHashOnly": true,
+        "recoveryTtlSeconds": 900
+      }
+    },
+    {
+      "id": "R05",
+      "description": "stale Auth JWT cannot change password phone email or identity; refresh fails",
+      "passed": true,
+      "durationMs": 269,
+      "evidence": {
+        "oldProviderSessions": 2,
+        "deniedMutationsPerSession": 5,
+        "jwtError": "session_not_found",
+        "refreshError": "refresh_token_not_found",
+        "directLoginFrozen": true
+      }
+    },
+    {
+      "id": "R06",
+      "description": "one token exchange succeeds under concurrent requests",
+      "passed": true,
+      "durationMs": 30,
+      "evidence": {
+        "concurrentRequests": 2,
+        "successes": 1,
+        "replayRejected": true,
+        "unknownTokenRejected": true
+      }
+    },
+    {
+      "id": "R07",
+      "description": "limited recovery cookie authorizes only password setting with CSRF checks",
+      "passed": true,
+      "durationMs": 90,
+      "evidence": {
+        "normalSessionDenied": true,
+        "adminRouteDenied": true,
+        "crossOriginDenied": true,
+        "weakPasswordDenied": true,
+        "targetOverrideDenied": true
+      }
+    },
+    {
+      "id": "R08",
+      "description": "one password change wins a race and only its new password signs in",
+      "passed": true,
+      "durationMs": 425,
+      "evidence": {
+        "concurrentRequests": 2,
+        "providerPasswordChanges": 1,
+        "grantConsumed": true,
+        "oldPasswordRejected": true,
+        "losingPasswordRejected": true,
+        "newPasswordDevices": 2,
+        "oldJwtStillDenied": true,
+        "contactUnchanged": true
+      }
+    },
+    {
+      "id": "R09",
+      "description": "expired or replaced grants fail; concurrent issuance cannot overlap provider work",
+      "passed": true,
+      "durationMs": 243,
+      "evidence": {
+        "issuanceOverlapRejected": true,
+        "expiredTokenRejected": true,
+        "supersededTokenRejected": true,
+        "expiredLimitedSessionRejected": true,
+        "expiryMethod": "database clock fixture, no wait"
+      }
+    },
+    {
+      "id": "R10",
+      "description": "recovery preserves a disabled account and provider ban",
+      "passed": true,
+      "durationMs": 241,
+      "evidence": {
+        "passwordChanged": true,
+        "status": "disabled",
+        "appLoginDenied": true,
+        "providerLoginDenied": true
+      }
+    },
+    {
+      "id": "R11",
+      "description": "lost acknowledgement after real password update locks recovery for review without replay",
+      "passed": true,
+      "durationMs": 345,
+      "evidence": {
+        "actualProviderUpdate": true,
+        "faultAfterProviderSuccess": true,
+        "stage": "review_uncertain",
+        "oldAppSessionDenied": true,
+        "providerRemainsBanned": true,
+        "secondUpdateCalls": 0,
+        "newIssuanceBlocked": true
+      }
+    },
+    {
+      "id": "R12",
+      "description": "audit records actor target reference and time without credentials; HTTP rejects secret URLs",
+      "passed": true,
+      "durationMs": 10,
+      "evidence": {
+        "auditEvents": 23,
+        "actorTargetTimeAndReference": true,
+        "credentialFreeAudit": true,
+        "noPasswordOrProviderTokenColumns": true,
+        "queryTokensRejected": true,
+        "getMutationRejected": true
+      }
+    }
+  ],
+  "requests": [
+    {
+      "method": "POST",
+      "route": "/admin/users",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/admin/users",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/admin/users",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/admin/users",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/admin/users",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "GET",
+      "route": "/me",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "GET",
+      "route": "/me",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/user",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/user",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "GET",
+      "route": "/me",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries",
+      "status": 403,
+      "errorCode": "forbidden"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries",
+      "status": 401,
+      "errorCode": "unauthorized"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries",
+      "status": 400,
+      "errorCode": "invalid_request"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries",
+      "status": 403,
+      "errorCode": "invalid_origin"
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries",
+      "status": 201,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "GET",
+      "route": "/me",
+      "status": 401,
+      "errorCode": "unauthorized"
+    },
+    {
+      "source": "gateway",
+      "method": "GET",
+      "route": "/me",
+      "status": 401,
+      "errorCode": "unauthorized"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 401,
+      "errorCode": "invalid_credentials"
+    },
+    {
+      "method": "PUT",
+      "route": "/user",
+      "status": 403,
+      "errorCode": "session_not_found"
+    },
+    {
+      "method": "PUT",
+      "route": "/user",
+      "status": 403,
+      "errorCode": "session_not_found"
+    },
+    {
+      "method": "PUT",
+      "route": "/user",
+      "status": 403,
+      "errorCode": "session_not_found"
+    },
+    {
+      "method": "PUT",
+      "route": "/user",
+      "status": 403,
+      "errorCode": "session_not_found"
+    },
+    {
+      "method": "DELETE",
+      "route": "/user/identities/[test-user]",
+      "status": 403,
+      "errorCode": "session_not_found"
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=refresh_token",
+      "status": 400,
+      "errorCode": "refresh_token_not_found"
+    },
+    {
+      "method": "PUT",
+      "route": "/user",
+      "status": 403,
+      "errorCode": "session_not_found"
+    },
+    {
+      "method": "PUT",
+      "route": "/user",
+      "status": 403,
+      "errorCode": "session_not_found"
+    },
+    {
+      "method": "PUT",
+      "route": "/user",
+      "status": 403,
+      "errorCode": "session_not_found"
+    },
+    {
+      "method": "PUT",
+      "route": "/user",
+      "status": 403,
+      "errorCode": "session_not_found"
+    },
+    {
+      "method": "DELETE",
+      "route": "/user/identities/[test-user]",
+      "status": 403,
+      "errorCode": "session_not_found"
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=refresh_token",
+      "status": 400,
+      "errorCode": "refresh_token_not_found"
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 400,
+      "errorCode": "user_banned"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/exchange",
+      "status": 400,
+      "errorCode": "invalid_recovery"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/exchange",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/exchange",
+      "status": 400,
+      "errorCode": "invalid_recovery"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/exchange",
+      "status": 400,
+      "errorCode": "invalid_recovery"
+    },
+    {
+      "source": "gateway",
+      "method": "GET",
+      "route": "/me",
+      "status": 401,
+      "errorCode": "unauthorized"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries",
+      "status": 401,
+      "errorCode": "unauthorized"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 403,
+      "errorCode": "invalid_origin"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 400,
+      "errorCode": "invalid_password"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 400,
+      "errorCode": "invalid_password"
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 400,
+      "errorCode": "invalid_recovery"
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 400,
+      "errorCode": "invalid_recovery"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/exchange",
+      "status": 400,
+      "errorCode": "invalid_recovery"
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 400,
+      "errorCode": "invalid_credentials"
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 400,
+      "errorCode": "invalid_credentials"
+    },
+    {
+      "method": "PUT",
+      "route": "/user",
+      "status": 403,
+      "errorCode": "session_not_found"
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "GET",
+      "route": "/me",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "GET",
+      "route": "/me",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries",
+      "status": 409,
+      "errorCode": "review_required"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries",
+      "status": 201,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/exchange",
+      "status": 400,
+      "errorCode": "invalid_recovery"
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries",
+      "status": 201,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/exchange",
+      "status": 400,
+      "errorCode": "invalid_recovery"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/exchange",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 400,
+      "errorCode": "invalid_recovery"
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries",
+      "status": 201,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/exchange",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 401,
+      "errorCode": "invalid_credentials"
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 400,
+      "errorCode": "user_banned"
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/login",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries",
+      "status": 201,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/exchange",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 503,
+      "errorCode": "review_required"
+    },
+    {
+      "source": "gateway",
+      "method": "GET",
+      "route": "/me",
+      "status": 401,
+      "errorCode": "unauthorized"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/recovery/password",
+      "status": 400,
+      "errorCode": "invalid_recovery"
+    },
+    {
+      "source": "gateway",
+      "method": "POST",
+      "route": "/admin/recoveries",
+      "status": 409,
+      "errorCode": "review_required"
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 400,
+      "errorCode": "user_banned"
+    },
+    {
+      "source": "gateway",
+      "method": "GET",
+      "route": "/recovery/exchange",
+      "status": 400,
+      "errorCode": "query_not_allowed"
+    },
+    {
+      "source": "gateway",
+      "method": "GET",
+      "route": "/recovery/password",
+      "status": 404,
+      "errorCode": "not_found"
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "DELETE",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 404,
+      "errorCode": "user_not_found"
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "DELETE",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 404,
+      "errorCode": "user_not_found"
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "DELETE",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 404,
+      "errorCode": "user_not_found"
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "DELETE",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 404,
+      "errorCode": "user_not_found"
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "DELETE",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 404,
+      "errorCode": "user_not_found"
+    }
+  ],
+  "nodeVersion": "v22.19.0",
+  "cleanup": {
+    "usersDeleted": true,
+    "rowsDeleted": true,
+    "runtimeRoleDropped": true,
+    "gatewayClosed": true,
+    "completed": true
+  },
+  "limitations": [
+    "Prototype schema only; not F03",
+    "HTTP loopback cookies omit Secure; production HTTPS not tested",
+    "No UI, Data API, Storage, video or subscription integration",
+    "No automatic recovery after process crash or operator reconciliation",
+    "In-flight Auth mutations already authorized before freeze are not covered",
+    "Rate limits and full T01-T12 acceptance remain incomplete"
+  ],
+  "gatewayHost": "127.0.0.1",
+  "passed": true,
+  "fixtureCount": 5,
+  "finishedAt": "2026-10-02T15:38:50.732Z"
+}

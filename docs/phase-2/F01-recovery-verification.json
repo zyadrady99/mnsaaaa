@@ -1,0 +1,47 @@
+{
+  "scope": "post-recovery-local-state",
+  "checkedAt": "2026-10-02T15:05:05.816Z",
+  "rows": {
+    "accounts": 0,
+    "sessions": 0,
+    "recoveries": 0,
+    "audit": 0,
+    "synthetic_auth_users": 0,
+    "temporary_runtime_roles": 0
+  },
+  "containers": [
+    {
+      "name": "supabase_db_dorosna-auth-spike",
+      "health": "healthy",
+      "publishedPorts": [
+        {
+          "port": "5432/tcp",
+          "host": "127.0.0.1",
+          "hostPort": "54322"
+        }
+      ]
+    },
+    {
+      "name": "supabase_auth_dorosna-auth-spike",
+      "health": "healthy",
+      "publishedPorts": []
+    },
+    {
+      "name": "supabase_kong_dorosna-auth-spike",
+      "health": "healthy",
+      "publishedPorts": [
+        {
+          "port": "8000/tcp",
+          "host": "127.0.0.1",
+          "hostPort": "54321"
+        }
+      ]
+    }
+  ],
+  "advisors": {
+    "exitCode": 0,
+    "noIssuesReported": true,
+    "jsonReturned": false
+  },
+  "passed": true
+}

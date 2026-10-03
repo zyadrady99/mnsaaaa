@@ -1,0 +1,59 @@
+{
+  "scope": "inflight-auth-mutation-before-freeze",
+  "startedAt": "2026-10-02T15:37:15.228Z",
+  "requests": [
+    {
+      "method": "POST",
+      "route": "/admin/users",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/user",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "PUT",
+      "route": "/user",
+      "status": 403,
+      "errorCode": "session_not_found"
+    },
+    {
+      "method": "DELETE",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    }
+  ],
+  "cleanup": true,
+  "finding": {
+    "reproduced": true,
+    "freezeStatus": 200,
+    "alreadyAuthorizedMutationStatus": 200,
+    "contactChangedAfterFreeze": true,
+    "newlyStartedMutationStatus": 403,
+    "conclusion": "Session revocation alone does not fence a request authorized before revocation. A server-only Auth API boundary is required for this architecture."
+  },
+  "probeCompleted": true,
+  "finishedAt": "2026-10-02T15:37:15.802Z"
+}

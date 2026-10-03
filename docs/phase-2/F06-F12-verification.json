@@ -1,0 +1,611 @@
+{
+  "verifiedAt": "2026-10-02T21:38:48.000Z",
+  "localOnly": true,
+  "automatedChecks": 68,
+  "groups": [
+    {
+      "name": "f06-auth-result",
+      "checks": [
+        {
+          "name": "foreign_origin_rejected",
+          "passed": true
+        },
+        {
+          "name": "browser_cannot_choose_role",
+          "passed": true
+        },
+        {
+          "name": "admin_password_sign_in",
+          "passed": true
+        },
+        {
+          "name": "admin_dashboard_reads_database",
+          "passed": true
+        },
+        {
+          "name": "registration_retry_does_not_duplicate",
+          "passed": true
+        },
+        {
+          "name": "registration_retry_changed_payload_rejected",
+          "passed": true
+        },
+        {
+          "name": "wrong_password_rejected",
+          "passed": true
+        },
+        {
+          "name": "arabic_phone_sign_in",
+          "passed": true
+        },
+        {
+          "name": "student_cannot_open_admin",
+          "passed": true
+        },
+        {
+          "name": "profile_reads_own_account",
+          "passed": true
+        },
+        {
+          "name": "invented_session_rejected",
+          "passed": true
+        },
+        {
+          "name": "logout_revokes_previous_session",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "f08-codes-result",
+      "checks": [
+        {
+          "name": "student_cannot_generate_codes",
+          "passed": true
+        },
+        {
+          "name": "batch_created_with_exact_quantity",
+          "passed": true
+        },
+        {
+          "name": "batch_retry_is_idempotent",
+          "passed": true
+        },
+        {
+          "name": "changed_batch_retry_rejected",
+          "passed": true
+        },
+        {
+          "name": "export_requires_admin_and_roundtrips_codes",
+          "passed": true
+        },
+        {
+          "name": "preview_requires_confirmation_and_does_not_activate",
+          "passed": true
+        },
+        {
+          "name": "activation_starts_exact_thirty_day_period",
+          "passed": true
+        },
+        {
+          "name": "own_code_replay_does_not_add_days",
+          "passed": true
+        },
+        {
+          "name": "active_renewal_adds_exact_thirty_days",
+          "passed": true
+        },
+        {
+          "name": "withdrawn_old_code_does_not_restore_access",
+          "passed": true
+        },
+        {
+          "name": "D28_new_code_after_withdrawal_starts_from_now",
+          "passed": true
+        },
+        {
+          "name": "used_code_cannot_be_cancelled_unused_code_can",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "f09-learning-result",
+      "checks": [
+        {
+          "name": "next_lesson_locked_initially",
+          "passed": true
+        },
+        {
+          "name": "private_video_requires_session_and_watch_lease",
+          "passed": true
+        },
+        {
+          "name": "progress_higher_revision_wins",
+          "passed": true
+        },
+        {
+          "name": "watch_transfer_invalidates_previous_device",
+          "passed": true
+        },
+        {
+          "name": "complete_requires_homework_pass_before_next",
+          "passed": true
+        },
+        {
+          "name": "active_attempt_and_ssr_never_send_answer_keys",
+          "passed": true
+        },
+        {
+          "name": "attempt_ownership_and_question_option_membership",
+          "passed": true
+        },
+        {
+          "name": "incomplete_homework_cannot_be_submitted",
+          "passed": true
+        },
+        {
+          "name": "out_of_order_answers_keep_newest_acknowledged_choice",
+          "passed": true
+        },
+        {
+          "name": "weighted_seventy_percent_passes_and_submission_is_idempotent",
+          "passed": true
+        },
+        {
+          "name": "later_failed_homework_keeps_first_pass_and_unlimited_retries",
+          "passed": true
+        },
+        {
+          "name": "published_version_is_immutable",
+          "passed": true
+        },
+        {
+          "name": "same_active_exam_start_replays_without_extra_attempt",
+          "passed": true
+        },
+        {
+          "name": "exam_model_after_exhaustion_without_closing_date",
+          "passed": true
+        },
+        {
+          "name": "logical_attempt_counter_and_old_model_survive_new_versions",
+          "passed": true
+        },
+        {
+          "name": "answer_model_hidden_before_global_close_even_after_exhaustion",
+          "passed": true
+        },
+        {
+          "name": "withdrawal_denies_active_exam_and_video_but_preserves_results",
+          "passed": true
+        },
+        {
+          "name": "disabled_account_invalidates_existing_application_session",
+          "passed": true
+        },
+        {
+          "name": "worker_grades_without_browser_or_student_requests_after_deadline",
+          "passed": true
+        },
+        {
+          "name": "results_and_models_remain_readable_after_access_withdrawal",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "f10-recovery-result",
+      "checks": [
+        {
+          "name": "student_cannot_issue_admin_recovery",
+          "passed": true
+        },
+        {
+          "name": "recovery_revokes_old_sessions_and_old_password",
+          "passed": true
+        },
+        {
+          "name": "only_hash_persisted_and_weak_password_does_not_consume_grant",
+          "passed": true
+        },
+        {
+          "name": "recovery_one_use_changes_password_and_never_auto_signs_in",
+          "passed": true
+        },
+        {
+          "name": "reissuing_invalidates_previous_unconsumed_code",
+          "passed": true
+        },
+        {
+          "name": "concurrent_recovery_claims_have_one_winner",
+          "passed": true
+        },
+        {
+          "name": "expired_recovery_cannot_be_used",
+          "passed": true
+        },
+        {
+          "name": "unfinished_recovery_requires_explicit_admin_reconciliation",
+          "passed": true
+        },
+        {
+          "name": "disabled_student_remains_disabled_after_password_recovery",
+          "passed": true
+        },
+        {
+          "name": "incomplete_registration_reconciles_only_matching_provider_identity",
+          "passed": true
+        },
+        {
+          "name": "recovery_preserves_progress_access_and_attempt_history",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "name": "f11-admin-result",
+      "checks": [
+        {
+          "name": "admin_can_create_subject_and_teacher",
+          "passed": true
+        },
+        {
+          "name": "student_cannot_create_or_edit_catalog",
+          "passed": true
+        },
+        {
+          "name": "draft_course_hidden_and_publish_requires_ready_lesson",
+          "passed": true
+        },
+        {
+          "name": "only_unlinked_draft_lesson_and_empty_unit_can_be_deleted",
+          "passed": true
+        },
+        {
+          "name": "lesson_publish_denies_missing_video_and_homework",
+          "passed": true
+        },
+        {
+          "name": "local_video_processing_failures_and_retry_are_versioned",
+          "passed": true
+        },
+        {
+          "name": "ready_video_alone_cannot_publish_without_published_homework",
+          "passed": true
+        },
+        {
+          "name": "draft_homework_does_not_make_lesson_ready",
+          "passed": true
+        },
+        {
+          "name": "public_catalog_reads_database_and_hides_future_drafts",
+          "passed": true
+        },
+        {
+          "name": "published_course_identity_and_lesson_deletion_are_frozen",
+          "passed": true
+        },
+        {
+          "name": "disabling_reference_hides_catalog_but_allows_cosmetic_corrections",
+          "passed": true
+        },
+        {
+          "name": "archive_stops_catalog_and_new_activation_but_keeps_existing_access",
+          "passed": true
+        },
+        {
+          "name": "archived_content_cannot_be_appended_and_audit_is_admin_only",
+          "passed": true
+        }
+      ]
+    }
+  ],
+  "build": "passed",
+  "lint": "passed",
+  "typecheck": "passed",
+  "databaseAdvisors": "no_issues_found",
+  "browser": {
+    "recordedRuns": 23,
+    "distinctPageSizes": 20,
+    "cases": [
+      {
+        "route": "/admin/courses",
+        "width": 1440,
+        "scroll": 1440,
+        "axe": {
+          "inapplicable": 56,
+          "incomplete": 0,
+          "passes": 33,
+          "violations": 0
+        },
+        "bodyWeight": "500",
+        "teacherWeights": []
+      },
+      {
+        "route": "/admin/courses/new",
+        "width": 1440,
+        "scroll": 1440,
+        "axe": {
+          "inapplicable": 49,
+          "incomplete": 0,
+          "passes": 40,
+          "violations": 0
+        },
+        "bodyWeight": "500",
+        "teacherWeights": []
+      },
+      {
+        "route": "/admin/courses/b0e199ec-e7df-4984-b098-532206a5e47a",
+        "width": 1440,
+        "scroll": 1440,
+        "axe": {
+          "inapplicable": 50,
+          "incomplete": 0,
+          "passes": 39,
+          "violations": 0
+        },
+        "bodyWeight": "500",
+        "teacherWeights": []
+      },
+      {
+        "route": "/admin/students/861025aa-4015-4786-8f3f-9ec55d1f53db",
+        "width": 1440,
+        "scroll": 1440,
+        "axe": {
+          "inapplicable": 48,
+          "incomplete": 0,
+          "passes": 41,
+          "violations": 0
+        },
+        "bodyWeight": "500",
+        "teacherWeights": []
+      },
+      {
+        "route": "/admin/codes",
+        "width": 1440,
+        "scroll": 1440,
+        "axe": {
+          "inapplicable": 49,
+          "incomplete": 0,
+          "passes": 40,
+          "violations": 0
+        },
+        "bodyWeight": "500",
+        "teacherWeights": []
+      },
+      {
+        "route": "/admin/settings",
+        "width": 1440,
+        "scroll": 1440,
+        "axe": {
+          "inapplicable": 53,
+          "incomplete": 0,
+          "passes": 36,
+          "violations": 0
+        },
+        "bodyWeight": "500",
+        "teacherWeights": []
+      },
+      {
+        "route": "/admin/audit",
+        "width": 1440,
+        "scroll": 1440,
+        "axe": {
+          "inapplicable": 56,
+          "incomplete": 0,
+          "passes": 33,
+          "violations": 0
+        },
+        "bodyWeight": "500",
+        "teacherWeights": []
+      },
+      {
+        "route": "/admin",
+        "width": 390,
+        "scroll": 390,
+        "axe": {
+          "inapplicable": 57,
+          "incomplete": 0,
+          "passes": 32,
+          "violations": 0
+        },
+        "bodyWeight": "500",
+        "teacherWeights": []
+      },
+      {
+        "route": "/admin/courses/new",
+        "width": 390,
+        "scroll": 390,
+        "axe": {
+          "inapplicable": 49,
+          "incomplete": 0,
+          "passes": 40,
+          "violations": 0
+        },
+        "bodyWeight": "500",
+        "teacherWeights": []
+      },
+      {
+        "route": "/admin/codes",
+        "width": 390,
+        "scroll": 390,
+        "axe": {
+          "inapplicable": 49,
+          "incomplete": 0,
+          "passes": 40,
+          "violations": 0
+        },
+        "bodyWeight": "500",
+        "teacherWeights": []
+      },
+      {
+        "route": "/admin/students/861025aa-4015-4786-8f3f-9ec55d1f53db",
+        "width": 390,
+        "scroll": 390,
+        "axe": {
+          "inapplicable": 48,
+          "incomplete": 0,
+          "passes": 41,
+          "violations": 0
+        },
+        "bodyWeight": "500",
+        "teacherWeights": []
+      },
+      {
+        "route": "/my-courses",
+        "width": 390,
+        "scroll": 390,
+        "axe": {
+          "inapplicable": 47,
+          "incomplete": 0,
+          "passes": 42,
+          "violations": 0
+        },
+        "bodyWeight": "500",
+        "teacherWeights": [
+          "700",
+          "700"
+        ]
+      },
+      {
+        "route": "/learn/b0e199ec-e7df-4984-b098-532206a5e47a",
+        "width": 390,
+        "scroll": 390,
+        "axe": {
+          "inapplicable": 51,
+          "incomplete": 0,
+          "passes": 38,
+          "violations": 0
+        },
+        "bodyWeight": "500",
+        "teacherWeights": []
+      },
+      {
+        "route": "/assessments/8cf5f435-695d-40fe-8606-67432081368d",
+        "width": 390,
+        "scroll": 390,
+        "axe": {
+          "inapplicable": 53,
+          "incomplete": 0,
+          "passes": 36,
+          "violations": 0
+        },
+        "bodyWeight": "500",
+        "teacherWeights": []
+      },
+      {
+        "route": "/results/32fdd416-d889-4abb-854a-d3fe15675bf7",
+        "width": 390,
+        "scroll": 390,
+        "axe": {
+          "inapplicable": 56,
+          "incomplete": 0,
+          "passes": 33,
+          "violations": 0
+        },
+        "bodyWeight": "500",
+        "teacherWeights": []
+      },
+      {
+        "route": "/learn/b0e199ec-e7df-4984-b098-532206a5e47a",
+        "width": 1440,
+        "scroll": 1440,
+        "axe": {
+          "inapplicable": 52,
+          "incomplete": 0,
+          "passes": 37,
+          "violations": 0
+        },
+        "bodyWeight": "500",
+        "teacherWeights": []
+      },
+      {
+        "route": "/recover",
+        "width": 390,
+        "scroll": 390,
+        "axe": {
+          "inapplicable": 49,
+          "incomplete": 0,
+          "passes": 40,
+          "violations": 0
+        },
+        "bodyWeight": "500",
+        "teacherWeights": []
+      },
+      {
+        "route": "/recover",
+        "width": 1440,
+        "scroll": 1440,
+        "axe": {
+          "inapplicable": 49,
+          "incomplete": 0,
+          "passes": 40,
+          "violations": 0
+        },
+        "bodyWeight": "500",
+        "teacherWeights": []
+      },
+      {
+        "route": "/",
+        "width": 390,
+        "scroll": 390,
+        "axe": {
+          "inapplicable": 46,
+          "incomplete": 0,
+          "passes": 43,
+          "violations": 0
+        },
+        "bodyWeight": "500",
+        "teacherWeights": [
+          "700",
+          "700",
+          "700"
+        ]
+      },
+      {
+        "route": "/courses/physics-electricity",
+        "width": 390,
+        "scroll": 390,
+        "axe": {
+          "inapplicable": 48,
+          "incomplete": 0,
+          "passes": 41,
+          "violations": 0
+        },
+        "bodyWeight": "500",
+        "teacherWeights": [
+          "700"
+        ]
+      }
+    ],
+    "violations": 0,
+    "incomplete": 0,
+    "story": [
+      "admin_form_login",
+      "student_form_login",
+      "local_video_actually_played",
+      "complete_then_homework",
+      "offline_answer_persisted_after_reopening",
+      "answer_acknowledged_after_connection_returned",
+      "homework_result_10_of_10",
+      "next_lesson_unlocked",
+      "admin_recovery_issue_form",
+      "student_recovery_form",
+      "student_sign_in_after_recovery"
+    ]
+  },
+  "ui": {
+    "removedHomeCodeBanner": true,
+    "removedCourseFaq": true,
+    "bodyWeight": 500,
+    "teacherNameWeight": 700
+  },
+  "boundaries": [
+    "local_demo_content",
+    "no_paid_provider_activation",
+    "bunny_real_upload_and_playback_pending",
+    "hosting_hardening_and_backups_pending",
+    "local_worker_requires_running_server"
+  ]
+}

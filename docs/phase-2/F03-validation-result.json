@@ -1,0 +1,180 @@
+{
+  "phase": "F03",
+  "scope": "draft DDL and test-only transactions; no HTTP/Auth/provider integration",
+  "date": "2026-10-02",
+  "checks": [
+    {
+      "id": "DDL-01-schema-applies",
+      "pass": true
+    },
+    {
+      "id": "DDL-02-foreign-key-leading-indexes",
+      "pass": true
+    },
+    {
+      "id": "A-01-phone-unique",
+      "pass": true
+    },
+    {
+      "id": "A-02-admin-cannot-be-student-profile",
+      "pass": true
+    },
+    {
+      "id": "C-01-lesson-unit-same-course",
+      "pass": true
+    },
+    {
+      "id": "C-02-published-lesson-no-reorder",
+      "pass": true
+    },
+    {
+      "id": "C-03-published-lesson-no-delete",
+      "pass": true
+    },
+    {
+      "id": "C-04-live-publication-rejects-fixture-video",
+      "pass": true
+    },
+    {
+      "id": "C-05-ready-video-required",
+      "pass": true
+    },
+    {
+      "id": "K-01-duration-restricted",
+      "pass": true
+    },
+    {
+      "id": "K-02-batch-request-unique",
+      "pass": true
+    },
+    {
+      "id": "K-03-confirmed-course-no-consumption",
+      "pass": true
+    },
+    {
+      "id": "K-04-expired-code-no-consumption",
+      "pass": true
+    },
+    {
+      "id": "K-05-activation-needs-linked-grant-at-commit",
+      "pass": true
+    },
+    {
+      "id": "K-06-injected-failure-rolls-back-code-grant-audit",
+      "pass": true
+    },
+    {
+      "id": "K-07-two-students-one-code-concurrent",
+      "pass": true
+    },
+    {
+      "id": "K-08-owner-replay-adds-no-time",
+      "pass": true
+    },
+    {
+      "id": "E-01-two-renewals-preserve-both-durations",
+      "pass": true
+    },
+    {
+      "id": "E-02-withdrawn-old-code-replay-keeps-withdrawal",
+      "pass": true
+    },
+    {
+      "id": "E-03-new-code-restarts-after-withdrawal-D28",
+      "pass": true
+    },
+    {
+      "id": "E-04-extension-adds-time-does-not-enable-account",
+      "pass": true
+    },
+    {
+      "id": "K-09-cancel-wins-blocked-activation",
+      "pass": true
+    },
+    {
+      "id": "K-10-used-code-cannot-cancel",
+      "pass": true
+    },
+    {
+      "id": "A-03-disable-wins-blocked-activation",
+      "pass": true
+    },
+    {
+      "id": "C-06-archive-wins-blocked-activation",
+      "pass": true
+    },
+    {
+      "id": "C-07-archived-owner-replay-preserves-access",
+      "pass": true
+    },
+    {
+      "id": "M-01-one-active-attempt-across-versions",
+      "pass": true
+    },
+    {
+      "id": "M-02-answer-must-belong-to-attempt-version",
+      "pass": true
+    },
+    {
+      "id": "M-03-answer-option-must-belong-to-question",
+      "pass": true
+    },
+    {
+      "id": "M-04-published-question-key-settings-frozen",
+      "pass": true
+    },
+    {
+      "id": "M-05-stale-answer-revision-rejected",
+      "pass": true
+    },
+    {
+      "id": "M-06-expired-attempt-rejects-answers",
+      "pass": true
+    },
+    {
+      "id": "M-07-final-state-needs-result-at-commit",
+      "pass": true
+    },
+    {
+      "id": "M-08-two-finalizers-one-result",
+      "pass": true
+    },
+    {
+      "id": "M-09-version-change-does-not-reset-attempt-number",
+      "pass": true
+    },
+    {
+      "id": "M-10-incomplete-assessment-cannot-publish",
+      "pass": true
+    },
+    {
+      "id": "L-01-sticky-homework-pass-keeps-first-result",
+      "pass": true
+    },
+    {
+      "id": "L-02-no-rounding-69-point-9-to-pass",
+      "pass": true
+    },
+    {
+      "id": "L-03-completion-is-sticky-and-position-independent",
+      "pass": true
+    },
+    {
+      "id": "V-01-one-watch-lease-per-student",
+      "pass": true
+    },
+    {
+      "id": "H-01-access-history-immutable",
+      "pass": true
+    },
+    {
+      "id": "H-02-used-account-cannot-delete-history",
+      "pass": true
+    }
+  ],
+  "tableCount": 28,
+  "cleanup": true,
+  "existingStackUnchanged": true,
+  "pass": true,
+  "postgresVersion": "17.11"
+}

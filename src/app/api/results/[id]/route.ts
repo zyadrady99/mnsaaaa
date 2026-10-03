@@ -1,0 +1,18 @@
+import { NextResponse } from "next/server";
+import { readResult } from "@/server/assessments";
+import { requestToken } from "@/server/auth";
+import { errorResponse, privateHeaders } from "@/server/http";
+export const runtime = "nodejs";
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    return NextResponse.json(
+      await readResult((await params).id, await requestToken()),
+      { headers: privateHeaders },
+    );
+  } catch (error) {
+    return errorResponse(error);
+  }
+}

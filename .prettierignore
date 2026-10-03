@@ -1,0 +1,8 @@
+node_modules
+.next
+.local
+experiments
+docs
+design-system
+src/fonts
+package-lock.json

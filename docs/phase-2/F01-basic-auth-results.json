@@ -1,0 +1,308 @@
+{
+  "scope": "local-phone-password-provider",
+  "startedAt": "2026-10-02T14:40:05.603Z",
+  "cliVersion": "2.119.0",
+  "checks": [
+    {
+      "id": "B01",
+      "description": "Auth health endpoint is ready",
+      "passed": true,
+      "durationMs": 90,
+      "evidence": {
+        "status": 200,
+        "version": "v2.197.0"
+      }
+    },
+    {
+      "id": "B02",
+      "description": "Phone provider enabled and public signup disabled",
+      "passed": true,
+      "durationMs": 9,
+      "evidence": {
+        "disableSignup": true,
+        "phoneProvider": true,
+        "emailProvider": false,
+        "phoneAutoconfirm": true
+      }
+    },
+    {
+      "id": "B03",
+      "description": "Server admin creates a phone account without email or OTP",
+      "passed": true,
+      "durationMs": 95,
+      "evidence": {
+        "status": 200,
+        "noEmail": true,
+        "phoneAcceptedByAdmin": true
+      }
+    },
+    {
+      "id": "B04",
+      "description": "Password sign-in returns the created identity and a session",
+      "passed": true,
+      "durationMs": 99,
+      "evidence": {
+        "status": 200,
+        "correctIdentity": true,
+        "hasSession": true
+      }
+    },
+    {
+      "id": "B05",
+      "description": "The signed-in token retrieves the same Auth user",
+      "passed": true,
+      "durationMs": 47,
+      "evidence": {
+        "status": 200,
+        "correctIdentity": true
+      }
+    },
+    {
+      "id": "B06",
+      "description": "Wrong password and unknown phone produce the same error",
+      "passed": true,
+      "durationMs": 90,
+      "evidence": {
+        "wrongStatus": 400,
+        "unknownStatus": 400,
+        "errorCode": "invalid_credentials",
+        "sameMessage": true
+      }
+    },
+    {
+      "id": "B07",
+      "description": "Duplicate admin creation is rejected without replacing credentials",
+      "passed": true,
+      "durationMs": 228,
+      "evidence": {
+        "duplicateStatus": 422,
+        "errorCode": "phone_exists",
+        "originalPasswordPreserved": true,
+        "matchingAccounts": 1
+      }
+    },
+    {
+      "id": "B08",
+      "description": "Public phone and email signup are blocked",
+      "passed": true,
+      "durationMs": 7,
+      "evidence": {
+        "phoneStatus": 422,
+        "emailStatus": 422,
+        "errorCode": "signup_disabled"
+      }
+    },
+    {
+      "id": "B09",
+      "description": "The public key cannot call admin create-user",
+      "passed": true,
+      "durationMs": 4,
+      "evidence": {
+        "status": 403,
+        "errorCode": "not_admin"
+      }
+    },
+    {
+      "id": "B10",
+      "description": "Local logout revokes its refresh token",
+      "passed": true,
+      "durationMs": 170,
+      "evidence": {
+        "logoutStatus": 204,
+        "refreshStatus": 400,
+        "errorCode": "refresh_token_not_found",
+        "accessJwtRevocationNotTested": true
+      }
+    },
+    {
+      "id": "B11",
+      "description": "Password sign-in works again after logout",
+      "passed": true,
+      "durationMs": 98,
+      "evidence": {
+        "status": 200,
+        "correctIdentity": true,
+        "newSession": true
+      }
+    }
+  ],
+  "requests": [
+    {
+      "method": "GET",
+      "route": "/health",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/settings",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/admin/users",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/user",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 400,
+      "errorCode": "invalid_credentials"
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 400,
+      "errorCode": "invalid_credentials"
+    },
+    {
+      "method": "POST",
+      "route": "/admin/users",
+      "status": 422,
+      "errorCode": "phone_exists"
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 400,
+      "errorCode": "invalid_credentials"
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users?page=1&per_page=1000",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/signup",
+      "status": 422,
+      "errorCode": "signup_disabled"
+    },
+    {
+      "method": "POST",
+      "route": "/signup",
+      "status": 422,
+      "errorCode": "signup_disabled"
+    },
+    {
+      "method": "POST",
+      "route": "/admin/users",
+      "status": 403,
+      "errorCode": "not_admin"
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=refresh_token",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/logout?scope=local",
+      "status": 204,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=refresh_token",
+      "status": 400,
+      "errorCode": "refresh_token_not_found"
+    },
+    {
+      "method": "POST",
+      "route": "/token?grant_type=password",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "POST",
+      "route": "/logout?scope=global",
+      "status": 204,
+      "errorCode": null
+    },
+    {
+      "method": "DELETE",
+      "route": "/admin/users/[test-user]",
+      "status": 200,
+      "errorCode": null
+    },
+    {
+      "method": "GET",
+      "route": "/admin/users/[test-user]",
+      "status": 404,
+      "errorCode": "user_not_found"
+    }
+  ],
+  "cleanup": {
+    "attempted": true,
+    "sessionsRevoked": true,
+    "userDeleted": true,
+    "completed": true
+  },
+  "apiOrigin": "http://127.0.0.1:54321",
+  "runtime": {
+    "localOnly": true,
+    "smsProviderConfigured": false,
+    "containers": [
+      {
+        "name": "/supabase_db_dorosna-auth-spike",
+        "image": "public.ecr.aws/supabase/postgres:17.11.0.002",
+        "imageId": "sha256:e671c63f6ad3a3bc0503d26bb6641bb2b8eddaabbfe1782ba56b7d2c0243b6d8",
+        "health": "healthy",
+        "bindings": [
+          {
+            "containerPort": "5432/tcp",
+            "hostIp": "127.0.0.1",
+            "hostPort": "54322"
+          }
+        ]
+      },
+      {
+        "name": "/supabase_auth_dorosna-auth-spike",
+        "image": "public.ecr.aws/supabase/gotrue:v2.197.0",
+        "imageId": "sha256:1181bff5ba4ce440013a63cef9f4cf13024c432d705c9b1fbc9e5b949e852f48",
+        "health": "healthy",
+        "bindings": []
+      },
+      {
+        "name": "/supabase_kong_dorosna-auth-spike",
+        "image": "public.ecr.aws/supabase/kong:2.8.1",
+        "imageId": "sha256:3cefb958bcd694597b65adc00053a762b1f9a6df3c6031af528d052d75a64e1a",
+        "health": "healthy",
+        "bindings": [
+          {
+            "containerPort": "8000/tcp",
+            "hostIp": "127.0.0.1",
+            "hostPort": "54321"
+          }
+        ]
+      }
+    ]
+  },
+  "authVersion": "v2.197.0",
+  "finishedAt": "2026-10-02T14:40:09.487Z",
+  "passed": 11,
+  "failed": 0,
+  "success": true
+}

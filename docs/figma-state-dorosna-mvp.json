@@ -4,7 +4,7 @@
   "fileUrl": "https://www.figma.com/design/pvQSfyIMugJE6vA6KpsQrS",
   "planKey": "team::1686072292079973355",
   "scope": "Full MVP UI/UX design: student and admin",
-  "step": "figma-starter-tool-limit-blocked",
+  "step": "ui-ux-first-draft-created-starter-limit-blocked",
   "planConstraint": "Starter plan allows 3 pages; full scope is organized with sections across three pages.",
   "decisions": {
     "workingName": "دروسنا",
@@ -15,7 +15,10 @@
   },
   "discovery": {
     "font": "Noto Sans Arabic",
-    "libraries": ["Material 3 Design Kit", "Simple Design System"],
+    "libraries": [
+      "Material 3 Design Kit",
+      "Simple Design System"
+    ],
     "codeConnect": "none; project has no application source or mappings",
     "reuseDecision": "Local branded components will be created because library components do not match the RTL Arabic visual/API requirements; Material 3 patterns inform behavior."
   },
@@ -47,8 +50,95 @@
       "decisions": "4:12",
       "foundations": "4:60"
     },
-    "components": {},
-    "screens": {}
+    "components": {
+      "Button": "11:32",
+      "Text field": "11:50",
+      "Filter chip": "11:55",
+      "Teacher card": "11:60",
+      "Course card": "11:82",
+      "Lesson row": "11:92",
+      "MCQ option": "11:101",
+      "Progress": "11:106",
+      "Status": "11:113",
+      "Student navigation": "11:120",
+      "Admin navigation": "11:141",
+      "Entity row": "11:146",
+      "Feedback": "11:157",
+      "Dialog": "11:163",
+      "Video shell": "11:170",
+      "Table row": "17:106"
+    },
+    "screens": {
+      "studentMobile": {
+        "تسجيل الدخول": "13:102",
+        "إنشاء حساب": "13:119",
+        "الرئيسية — طالب جديد": "13:142",
+        "الرئيسية — كمّل تعلمك": "13:167",
+        "المدرسون": "13:194",
+        "البحث والفلاتر": "13:217",
+        "صفحة المدرس": "13:239",
+        "تفاصيل الكورس قبل التفعيل": "13:261",
+        "تفعيل كود الاشتراك": "13:287",
+        "نجاح التفعيل": "13:304",
+        "كورساتي": "13:320",
+        "مشغل الكورس": "13:345",
+        "قائمة الدروس": "13:363",
+        "واجب الدرس": "13:382",
+        "مراجعة الواجب": "13:400",
+        "نتيجة الواجب": "13:414",
+        "تعليمات الامتحان": "13:426",
+        "أسئلة الامتحان": "13:438",
+        "خريطة الأسئلة": "13:460",
+        "تأكيد التسليم": "13:478",
+        "نتيجة الامتحان": "13:491",
+        "مراجعة الإجابات": "13:506",
+        "حسابي والاشتراكات": "13:521"
+      },
+      "studentResponsive": {
+        "الرئيسية": "16:276",
+        "المدرسون": "16:309",
+        "صفحة المدرس": "16:337",
+        "تفاصيل الكورس": "16:366",
+        "مشغل الكورس": "16:406",
+        "الامتحان": "16:434",
+        "Tablet / الرئيسية": "16:470",
+        "Tablet / تفاصيل الكورس": "16:493",
+        "Tablet / مشغل الكورس": "16:518"
+      },
+      "admin": {
+        "دخول الأدمن": "17:107",
+        "نظرة عامة": "17:122",
+        "المدرسون": "17:167",
+        "إنشاء وتعديل مدرس": "17:213",
+        "الكورسات": "17:267",
+        "إنشاء كورس": "17:320",
+        "منشئ المنهج": "17:378",
+        "إضافة فيديو": "17:425",
+        "منشئ أسئلة الواجب": "17:481",
+        "إعدادات الامتحان": "17:546",
+        "توليد دفعة أكواد": "17:621",
+        "تفاصيل دفعة الأكواد": "17:682",
+        "الطلاب والاشتراكات": "17:732",
+        "تفاصيل الطالب": "17:783"
+      },
+      "studentStates": {
+        "كود غير صحيح": "22:391",
+        "كود مستخدم": "22:403",
+        "كود منتهي": "22:415",
+        "كورساتي — حالة فارغة": "22:427",
+        "فشل الفيديو": "22:434",
+        "انقطاع الاتصال أثناء الامتحان": "22:446",
+        "الواجب — أعد المحاولة": "22:453"
+      },
+      "adminEmpty": "26:725",
+      "overlays": {
+        "تفعيل الكود": "22:460",
+        "قائمة الدروس": "22:472",
+        "الفلاتر": "22:486"
+      },
+      "adminCodeCancel": "26:715",
+      "handoff": "26:733"
+    }
   },
   "tokenCounts": {
     "variables": 63,
@@ -58,9 +148,33 @@
   "blocker": {
     "type": "Figma Starter MCP call limit",
     "message": "You've reached the Figma MCP tool call limit on the Starter plan.",
-    "impact": "The component creation call was rejected before execution. No reusable components or product screens have been added yet.",
-    "resumeAt": "Create the reusable RTL components on page 0:1, visually validate foundations/components, then compose student and admin screens."
+    "impact": "54 screens, 4 overlays, 16 component families, and core prototype flows exist. The last admin polish/publication/settings call was rejected before execution.",
+    "resumeAt": "Fix empty-admin helper copy and destructive confirmation; add publication, subjects and settings screens; finish prototype QA."
   },
-  "pendingValidations": ["foundations-visual", "components", "student-mobile", "student-responsive", "admin", "flows"],
-  "completedSteps": ["product-architecture", "local-spec", "figma-file-created", "figma-discovery", "library-search", "file-structure", "tokens-and-styles", "cover-decisions-foundations-specimens"]
+  "pendingValidations": [
+    "admin-last-polish",
+    "admin-publication-subjects-settings",
+    "full-prototype-review",
+    "real-media",
+    "identity-review"
+  ],
+  "completedSteps": [
+    "product-architecture",
+    "local-spec",
+    "figma-file-created",
+    "figma-discovery",
+    "library-search",
+    "file-structure",
+    "tokens-and-styles",
+    "cover-decisions-foundations-specimens",
+    "components-16-families-49-variants",
+    "student-mobile-23",
+    "student-responsive-9",
+    "admin-core-14",
+    "student-states-7",
+    "admin-empty-1",
+    "overlays-4",
+    "core-prototype-links",
+    "flow-handoff"
+  ]
 }
