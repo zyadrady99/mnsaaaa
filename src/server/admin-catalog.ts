@@ -5,6 +5,7 @@ import { identity } from "./auth";
 import { transaction } from "./db";
 import { denied } from "./errors";
 import { validUuid } from "@/lib/auth-input";
+import { validateImageRef } from "./media";
 
 export function text(value: unknown, max = 200, min = 1) {
   if (typeof value !== "string")
@@ -53,12 +54,6 @@ const list = (value: unknown) =>
     .map((x) => x.trim())
     .filter(Boolean)
     .slice(0, 20);
-function image(value: unknown, fallback: string) {
-  const ref = typeof value === "string" ? value : fallback;
-  if (!/^\/images\/[a-z0-9-]+\.(svg|png|jpe?g|webp)$/.test(ref))
-    denied(400, "invalid_image", "اختار صورة محلية متاحة.");
-  return ref;
-}
 export const catalogActions: Record<string, string[]> = {
   "teacher-save": [
     "id",
@@ -94,8 +89,6 @@ export const catalogActions: Record<string, string[]> = {
   "course-publish": ["id"],
   "course-archive": ["id"],
   "subject-create": ["name", "slug"],
-  "lesson-delete": ["id"],
-  "unit-delete": ["id"],
   "reference-save": ["id", "kind", "name", "enabled", "slug"],
 };
 export async function catalogCommand(
@@ -113,7 +106,7 @@ export async function catalogCommand(
       if (
         !(
           await db.query(
-            "select id from app_private.subjects where id=$1 and enabled for share",
+            "select id from app_private.subjects where id=$1 and enabled and deleted_at is null for share",
             [subjectId],
           )
         ).rowCount
@@ -124,14 +117,14 @@ export async function catalogCommand(
         slug(body.slug),
         subjectId,
         text(body.description ?? "", 3000, 0),
-        image(body.portrait, "/images/teacher-ahmed.svg"),
+        await validateImageRef(db, body.portrait, "/images/teacher-ahmed.svg"),
         JSON.stringify(list(body.approach)),
         body.enabled !== false,
       ];
       if (body.id) {
         id = uuid(body.id);
         const updated = await db.query(
-          `update app_private.teachers set name=$2,slug=$3,subject_id=$4,biography=$5,image_ref=$6,approach=$7,enabled=$8 where id=$1`,
+          `update app_private.teachers set name=$2,slug=$3,subject_id=$4,biography=$5,image_ref=$6,approach=$7,enabled=$8 where id=$1 and deleted_at is null`,
           [id, ...values],
         );
         if (!updated.rowCount) denied(404, "not_found", "المدرس غير موجود.");
@@ -152,7 +145,7 @@ export async function catalogCommand(
       const existingCourse = body.id
         ? (
             await db.query(
-              "select * from app_private.courses where id=$1 for update",
+              "select * from app_private.courses where id=$1 and deleted_at is null for update",
               [uuid(body.id)],
             )
           ).rows[0]
@@ -165,14 +158,15 @@ export async function catalogCommand(
         existingCourse.teacher_id === teacherId &&
         existingCourse.grade_id === gradeId &&
         existingCourse.subject_id === subjectId;
-      const refs = (
-        await db.query(
-          `select exists(select 1 from app_private.teachers where id=$1 and enabled) and
-        exists(select 1 from app_private.grades where id=$2 and enabled) and exists(select 1 from app_private.subjects where id=$3 and enabled) as ok`,
-          [teacherId, gradeId, subjectId],
-        )
-      ).rows[0];
-      if (!refs.ok && !(frozen && sameIdentity))
+      const refs = await db.query(
+        `select t.id from app_private.teachers t
+         join app_private.grades g on g.id=$2 join app_private.subjects s on s.id=$3
+         where t.id=$1 and t.enabled and g.enabled and s.enabled
+           and t.deleted_at is null and g.deleted_at is null and s.deleted_at is null
+         for share of t,g,s`,
+        [teacherId, gradeId, subjectId],
+      );
+      if (!refs.rowCount && !(frozen && sameIdentity))
         denied(
           400,
           "reference_unavailable",
@@ -186,14 +180,14 @@ export async function catalogCommand(
         subjectId,
         text(body.description ?? "", 5000, 0),
         text(body.subtitle ?? "", 300, 0),
-        image(body.cover, "/images/course-physics.svg"),
+        await validateImageRef(db, body.cover, "/images/course-physics.svg"),
         JSON.stringify(list(body.outcomes)),
       ];
       if (body.id) {
         id = uuid(body.id);
         const course = (
           await db.query(
-            "select * from app_private.courses where id=$1 for update",
+            "select * from app_private.courses where id=$1 and deleted_at is null for update",
             [id],
           )
         ).rows[0];
@@ -233,73 +227,11 @@ export async function catalogCommand(
       await audit(db, actor.id, action, "subjects", id);
       return { id, message: "المادة اتضافت.", next: "/admin/settings" };
     }
-    if (action === "lesson-delete" || action === "unit-delete") {
-      id = uuid(body.id);
-      const table = action === "lesson-delete" ? "lessons" : "course_units";
-      const found = (
-        await db.query(
-          `select course_id from app_private.${table} where id=$1`,
-          [id],
-        )
-      ).rows[0];
-      if (!found) denied(404, "not_found", "المسودة غير موجودة.");
-      const course = (
-        await db.query(
-          "select status from app_private.courses where id=$1 for update",
-          [found.course_id],
-        )
-      ).rows[0];
-      const row = (
-        await db.query(
-          `select * from app_private.${table} where id=$1 for update`,
-          [id],
-        )
-      ).rows[0];
-      if (
-        course.status === "archived" ||
-        (table === "lessons" &&
-          (row.published_at || row.first_used_at || row.current_video_id))
-      )
-        denied(
-          409,
-          "draft_linked",
-          "الحذف متاح لمسودة غير مستخدمة وبلا فيديو أو تقييمات مرتبطة.",
-        );
-      const linked =
-        table === "lessons"
-          ? (
-              await db.query(
-                "select exists(select 1 from app_private.assessments where lesson_id=$1) or exists(select 1 from app_private.video_uploads where lesson_id=$1) as linked",
-                [id],
-              )
-            ).rows[0]
-          : (
-              await db.query(
-                "select exists(select 1 from app_private.lessons where unit_id=$1) or exists(select 1 from app_private.assessments where unit_id=$1) as linked",
-                [id],
-              )
-            ).rows[0];
-      if (linked.linked)
-        denied(409, "draft_linked", "المسودة مرتبطة بمحتوى. مينفعش حذفها.");
-      await db.query(`delete from app_private.${table} where id=$1`, [id]);
-      await audit(
-        db,
-        actor.id,
-        action,
-        table === "lessons" ? "lesson" : "unit",
-        id,
-      );
-      return {
-        id,
-        message: "المسودة اتحذفت.",
-        next: `/admin/courses/${found.course_id}`,
-      };
-    }
     if (action === "unit-save" || action === "lesson-save") {
       const courseId = uuid(body.courseId);
       const course = (
         await db.query(
-          "select * from app_private.courses where id=$1 for update",
+          "select * from app_private.courses where id=$1 and deleted_at is null for update",
           [courseId],
         )
       ).rows[0];
@@ -312,7 +244,7 @@ export async function catalogCommand(
           if (
             !(
               await db.query(
-                "update app_private.course_units set title=$3 where id=$1 and course_id=$2",
+                "update app_private.course_units set title=$3 where id=$1 and course_id=$2 and deleted_at is null",
                 [id, courseId, title],
               )
             ).rowCount
@@ -335,7 +267,7 @@ export async function catalogCommand(
         if (
           !(
             await db.query(
-              "select id from app_private.course_units where id=$1 and course_id=$2",
+              "select id from app_private.course_units where id=$1 and course_id=$2 and deleted_at is null",
               [unitId, courseId],
             )
           ).rowCount
@@ -345,7 +277,7 @@ export async function catalogCommand(
           id = uuid(body.id);
           const lesson = (
             await db.query(
-              "select * from app_private.lessons where id=$1 and course_id=$2 for update",
+              "select * from app_private.lessons where id=$1 and course_id=$2 and deleted_at is null for update",
               [id, courseId],
             )
           ).rows[0];
@@ -418,7 +350,7 @@ export async function catalogCommand(
       if (
         !(
           await db.query(
-            `update app_private.${table} set name=$2,enabled=$3 where id=$1`,
+            `update app_private.${table} set name=$2,enabled=$3 where id=$1 and deleted_at is null`,
             [id, text(body.name, 80), body.enabled !== false],
           )
         ).rowCount
@@ -430,7 +362,7 @@ export async function catalogCommand(
     id = uuid(body.id);
     const course = (
       await db.query(
-        "select * from app_private.courses where id=$1 for update",
+        "select * from app_private.courses where id=$1 and deleted_at is null for update",
         [id],
       )
     ).rows[0];
@@ -441,7 +373,7 @@ export async function catalogCommand(
       if (
         !(
           await db.query(
-            "select id from app_private.lessons where course_id=$1 and published_at is not null",
+            "select l.id from app_private.lessons l join app_private.course_units u on u.id=l.unit_id where l.course_id=$1 and l.published_at is not null and l.deleted_at is null and u.deleted_at is null",
             [id],
           )
         ).rowCount

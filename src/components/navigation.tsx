@@ -2,12 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, House, UserCircle, Users } from "@phosphor-icons/react";
+import {
+  BookOpen,
+  ClipboardText,
+  House,
+  UserCircle,
+  Users,
+} from "@phosphor-icons/react";
 
 const destinations = [
   { href: "/", label: "الرئيسية", icon: House },
   { href: "/teachers", label: "المدرسون", icon: Users },
   { href: "/my-courses", label: "كورساتي", icon: BookOpen },
+  { href: "/assessments", label: "التقييمات", icon: ClipboardText },
   { href: "/account", label: "حسابي", icon: UserCircle },
 ];
 

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import { CatalogImage } from "@/components/catalog-image";
 import { notFound } from "next/navigation";
 import { BookOpen, Check } from "@phosphor-icons/react/dist/ssr";
 import { CourseCard } from "@/components/cards";
@@ -29,9 +29,10 @@ export default async function TeacherPage({ params }: Props) {
       />
       <section className="teacher-profile">
         <div className={`profile-portrait theme-${teacher.subject}`}>
-          <Image
+          <CatalogImage
             src={teacher.portrait}
-            alt={`رسم تجريبي للمدرس ${teacher.name}`}
+            kind="teacher"
+            alt={`صورة المدرس ${teacher.name}`}
             width={400}
             height={400}
             preload

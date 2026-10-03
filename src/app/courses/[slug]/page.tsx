@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import { CatalogImage } from "@/components/catalog-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -77,7 +77,14 @@ export default async function CoursePage({ params }: Props) {
             href={`/teachers/${teacher.slug}`}
             className="teacher-byline detail-byline"
           >
-            <Image src={teacher.portrait} alt="" width={40} height={40} />
+            <CatalogImage
+              src={teacher.portrait}
+              kind="teacher"
+              alt=""
+              width={40}
+              height={40}
+              compact
+            />
             <span>أ. {teacher.name}</span>
             <ArrowLeft size={17} aria-hidden="true" />
           </Link>
@@ -99,7 +106,14 @@ export default async function CoursePage({ params }: Props) {
         </header>
         <aside className="enrollment-card">
           <div className={`enrollment-cover theme-${course.subject}`}>
-            <Image src={course.cover} alt="" width={640} height={480} preload />
+            <CatalogImage
+              src={course.cover}
+              kind="course"
+              alt=""
+              width={640}
+              height={360}
+              preload
+            />
           </div>
           <div className="enrollment-body">
             <p className="eyebrow">ابدأ بكود من السنتر</p>

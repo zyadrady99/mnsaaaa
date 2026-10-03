@@ -22,9 +22,31 @@ export default async function CourseAdmin({
     ])
   ).rows[0];
   if (!course) notFound();
+  if (course.deleted_at)
+    return (
+      <>
+        <PageHeading
+          title={course.title}
+          description="الكورس في المحذوفات. السجل ووصول الطلاب السابق محفوظان."
+        />
+        <section className="workspace-panel">
+          <MutationForm
+            endpoint="/api/admin/course-restore"
+            body={{ id, confirm: true }}
+            fields={[]}
+            label="استعادة الكورس للوحة الإدارة"
+            variant="secondary"
+            confirmMessage="استعادة الكورس؟ يعود بحالته الحالية؛ الكورس المؤرشف يظل مؤرشفًا."
+          />
+          <Link className="text-link" href="/admin/courses">
+            كل الكورسات ←
+          </Link>
+        </section>
+      </>
+    );
   const [unitResult, lessonResult, assessmentResult] = await Promise.all([
     database().query(
-      "select id,title,position from app_private.course_units where course_id=$1 order by position",
+      "select id,title,position,deleted_at from app_private.course_units where course_id=$1 order by position",
       [id],
     ),
     database().query(
@@ -32,12 +54,12 @@ export default async function CourseAdmin({
       [id],
     ),
     database().query(
-      "select id,title,kind,lesson_id,unit_id,current_version_id from app_private.assessments where course_id=$1 order by kind,title",
+      "select id,title,kind,lesson_id,unit_id,current_version_id from app_private.assessments where course_id=$1 and deleted_at is null order by kind,title",
       [id],
     ),
   ]);
-  const units = unitResult.rows,
-    lessons = lessonResult.rows,
+  const units = unitResult.rows.filter((unit) => !unit.deleted_at),
+    lessons = lessonResult.rows.filter((lesson) => !lesson.deleted_at),
     assessments = assessmentResult.rows;
   const unitOptions = units.map((u) => ({ value: u.id, label: u.title }));
   return (
@@ -93,6 +115,7 @@ export default async function CourseAdmin({
               endpoint={`/api/admin/course-${course.status === "draft" ? "publish" : "archive"}`}
               body={{ id }}
               fields={[]}
+              variant={course.status === "published" ? "danger" : "primary"}
               label={
                 course.status === "draft" ? "نشر الكورس محليًا" : "أرشفة الكورس"
               }
@@ -103,6 +126,15 @@ export default async function CourseAdmin({
               }
             />
           )}
+          <MutationForm
+            endpoint="/api/admin/course-delete"
+            body={{ id, confirm: true }}
+            fields={[]}
+            label="حذف الكورس"
+            variant="danger"
+            navigate
+            confirmMessage="حذف الكورس؟ المسودة ومحتواها غير المستخدم يُحذفان نهائيًا. الكورس المنشور أو ذو السجل ينتقل للمحذوفات مع حفظ نتائج الطلاب ووصولهم السابق."
+          />
         </section>
       </div>
       <section className="page-section">
@@ -140,18 +172,16 @@ export default async function CourseAdmin({
                       },
                     ]}
                   />
-                  {!lessons.some((l) => l.unit_id === unit.id) &&
-                    !assessments.some((a) => a.unit_id === unit.id) && (
-                      <MutationForm
-                        endpoint="/api/admin/unit-delete"
-                        body={{ id: unit.id }}
-                        fields={[]}
-                        label="حذف الوحدة الفارغة"
-                        confirmMessage="حذف الوحدة الفارغة؟"
-                      />
-                    )}
                 </details>
               )}
+              <MutationForm
+                endpoint="/api/admin/unit-delete"
+                body={{ id: unit.id, confirm: true }}
+                fields={[]}
+                label="حذف الوحدة"
+                variant="danger"
+                confirmMessage="حذف الوحدة ومحتواها؟ المسودات غير المستخدمة تُحذف نهائيًا، والمحتوى المنشور ينتقل للمحذوفات مع حفظ سجل الطلاب."
+              />
               <div className="lesson-editor-list page-section">
                 {lessons
                   .filter((l) => l.unit_id === unit.id)
@@ -209,18 +239,14 @@ export default async function CourseAdmin({
                           ]}
                         />
                         <div className="action-stack">
-                          {!lesson.published_at &&
-                            !lesson.first_used_at &&
-                            !lesson.current_video_id &&
-                            !homework && (
-                              <MutationForm
-                                endpoint="/api/admin/lesson-delete"
-                                body={{ id: lesson.id }}
-                                fields={[]}
-                                label="حذف المسودة"
-                                confirmMessage="حذف مسودة الدرس؟"
-                              />
-                            )}
+                          <MutationForm
+                            endpoint="/api/admin/lesson-delete"
+                            body={{ id: lesson.id, confirm: true }}
+                            fields={[]}
+                            label="حذف الدرس"
+                            variant="danger"
+                            confirmMessage="حذف الدرس؟ مسودته وفيديوه وتقييماته غير المستخدمة تُحذف نهائيًا. الدرس المنشور ينتقل للمحذوفات مع حفظ تقدم الطلاب."
+                          />
                           <p className="muted">
                             الفيديو:{" "}
                             {lesson.video_state === "ready"
@@ -315,6 +341,36 @@ export default async function CourseAdmin({
           ))}
         </div>
       </section>
+      {(unitResult.rows.some((unit) => unit.deleted_at) ||
+        lessonResult.rows.some((lesson) => lesson.deleted_at)) && (
+        <section className="page-section">
+          <h2>المحتوى المحذوف</h2>
+          <div className="admin-list">
+            {[
+              ...unitResult.rows
+                .filter((unit) => unit.deleted_at)
+                .map((unit) => ({ ...unit, kind: "unit", label: "وحدة" })),
+              ...lessonResult.rows
+                .filter((lesson) => lesson.deleted_at)
+                .map((lesson) => ({ ...lesson, kind: "lesson", label: "درس" })),
+            ].map((item) => (
+              <section className="workspace-panel" key={item.id}>
+                <h3>
+                  {item.label}: {item.title}
+                </h3>
+                <MutationForm
+                  endpoint={`/api/admin/${item.kind}-restore`}
+                  body={{ id: item.id, confirm: true }}
+                  fields={[]}
+                  label="استعادة"
+                  variant="secondary"
+                  confirmMessage="استعادة المحتوى للوحة الإدارة؟ حالته ونتائج الطلاب تظل محفوظة."
+                />
+              </section>
+            ))}
+          </div>
+        </section>
+      )}
       {assessments.some((a) => a.kind === "exam") && (
         <section className="page-section">
           <h2>الامتحانات</h2>

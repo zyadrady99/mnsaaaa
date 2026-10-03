@@ -10,8 +10,16 @@ const labels: Record<string, string> = {
   "course-save": "حفظ كورس",
   "unit-save": "حفظ وحدة",
   "lesson-save": "حفظ درس",
-  "lesson-delete": "حذف مسودة درس",
-  "unit-delete": "حذف وحدة فارغة",
+  "lesson-delete": "حذف درس",
+  "unit-delete": "حذف وحدة",
+  "course-delete": "حذف كورس",
+  "teacher-delete": "حذف مدرس",
+  "assessment-delete": "حذف تقييم",
+  "reference-delete": "حذف صف أو مادة",
+  "code-delete": "حذف كود",
+  "code-batch-delete": "حذف دفعة أكواد",
+  "image-upload": "رفع صورة",
+  "assessment-archive": "أرشفة تقييم",
   "video-fixture": "تجهيز فيديو تجريبي",
   "lesson-publish": "نشر درس",
   "course-publish": "نشر كورس",
@@ -33,6 +41,7 @@ const labels: Record<string, string> = {
 };
 function label(action: string) {
   if (labels[action]) return labels[action];
+  if (action.endsWith("-restore")) return "استرجاع عنصر محذوف";
   if (action.startsWith("recovery-"))
     return action.endsWith("complete")
       ? "اكتمال استعادة حساب"

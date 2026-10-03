@@ -23,6 +23,9 @@ export default async function AssessmentPage({
         <Link className="button primary" href="/my-courses">
           كورساتي
         </Link>
+        <Link className="button secondary" href="/assessments">
+          الواجبات والامتحانات
+        </Link>
       </>
     );
   }
@@ -95,12 +98,23 @@ export default async function AssessmentPage({
           />
         ) : (
           <p className="status-message">
-            الامتحان خارج موعده أو محاولاتك خلصت. نتائجك السابقة موجودة في صفحة
-            الكورس.
+            الامتحان خارج موعده أو محاولاتك خلصت.{" "}
+            {data.scope === "standalone"
+              ? "نتائجك السابقة موجودة في صفحة الواجبات والامتحانات."
+              : "نتائجك السابقة موجودة في صفحة الكورس."}
           </p>
         )}
-        <Link className="button secondary" href={`/learn/${data.courseId}`}>
-          الرجوع للكورس
+        <Link
+          className="button secondary"
+          href={
+            data.scope === "standalone"
+              ? "/assessments"
+              : `/learn/${data.courseId}`
+          }
+        >
+          {data.scope === "standalone"
+            ? "الواجبات والامتحانات"
+            : "الرجوع للكورس"}
         </Link>
       </section>
     </>

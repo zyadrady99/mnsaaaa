@@ -3,10 +3,6 @@ import { MutationForm, type FieldSpec } from "@/components/mutation-form";
 import { requireAccount } from "@/server/auth";
 import { database } from "@/server/db";
 import { referenceData } from "@/server/catalog";
-const portraits = ["ahmed", "mariam", "omar", "youssef"].map((name, i) => ({
-  value: `/images/teacher-${name}.svg`,
-  label: `رسم تجريبي ${i + 1}`,
-}));
 export const metadata = { title: "إدارة المدرسين" };
 export default async function TeachersAdmin() {
   await requireAccount("admin");
@@ -43,10 +39,8 @@ export default async function TeachersAdmin() {
       {
         name: "portrait",
         label: "صورة المدرس",
-        type: "select",
-        options: portraits,
-        required: true,
-        value: teacher?.image_ref ?? portraits[0].value,
+        type: "image",
+        value: teacher?.image_ref ?? "",
       },
       {
         name: "description",
@@ -86,22 +80,59 @@ export default async function TeachersAdmin() {
         />
       </details>
       <div className="admin-list">
-        {teachers.map((teacher) => (
-          <details className="workspace-panel editor-details" key={teacher.id}>
-            <summary>
-              <strong>أ. {teacher.name}</strong>
-              <span className="muted">{teacher.enabled ? "ظاهر" : "مخفي"}</span>
-            </summary>
-            <MutationForm
-              endpoint="/api/admin/teacher-save"
-              fields={fields(teacher)}
-              body={{ id: teacher.id }}
-              key={JSON.stringify(teacher)}
-              label="حفظ بيانات المدرس"
-            />
-          </details>
-        ))}
+        {teachers
+          .filter((teacher) => !teacher.deleted_at)
+          .map((teacher) => (
+            <details
+              className="workspace-panel editor-details"
+              key={teacher.id}
+            >
+              <summary>
+                <strong>أ. {teacher.name}</strong>
+                <span className="muted">
+                  {teacher.enabled ? "ظاهر" : "مخفي"}
+                </span>
+              </summary>
+              <MutationForm
+                endpoint="/api/admin/teacher-save"
+                fields={fields(teacher)}
+                body={{ id: teacher.id }}
+                key={JSON.stringify(teacher)}
+                label="حفظ بيانات المدرس"
+              />
+              <MutationForm
+                endpoint="/api/admin/teacher-delete"
+                fields={[]}
+                body={{ id: teacher.id, confirm: true }}
+                label="حذف المدرس"
+                variant="danger"
+                confirmMessage="حذف المدرس؟ المدرس غير المرتبط بكورسات يُحذف نهائيًا. المرتبط ينتقل للمحذوفات مع حفظ كورساته ووصول الطلاب."
+              />
+            </details>
+          ))}
       </div>
+      {teachers.some((teacher) => teacher.deleted_at) && (
+        <section className="page-section">
+          <h2>المدرسون المحذوفون</h2>
+          <div className="admin-list">
+            {teachers
+              .filter((teacher) => teacher.deleted_at)
+              .map((teacher) => (
+                <section className="workspace-panel" key={teacher.id}>
+                  <h3>أ. {teacher.name}</h3>
+                  <MutationForm
+                    endpoint="/api/admin/teacher-restore"
+                    body={{ id: teacher.id, confirm: true }}
+                    fields={[]}
+                    label="استعادة المدرس"
+                    variant="secondary"
+                    confirmMessage="استعادة المدرس للوحة الإدارة؟ يمكنك مراجعة بياناته وإظهاره بعد الاستعادة."
+                  />
+                </section>
+              ))}
+          </div>
+        </section>
+      )}
     </>
   );
 }

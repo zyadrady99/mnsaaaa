@@ -31,6 +31,9 @@ export default async function ResultPage({
         <Link className="button primary" href="/my-courses">
           كورساتي
         </Link>
+        <Link className="button secondary" href="/assessments">
+          الواجبات والامتحانات
+        </Link>
       </>
     );
   }
@@ -53,12 +56,19 @@ export default async function ResultPage({
         {result.kind === "homework" && (
           <p className="muted">
             {result.passed
-              ? "النجاح محفوظ. علّم الدرس كمكتمل علشان تفتح اللي بعده."
-              : "تقدر تبدأ محاولة واجب جديدة وتتدرّب تاني."}
+              ? result.courseId
+                ? "النجاح محفوظ. علّم الدرس كمكتمل علشان تفتح اللي بعده."
+                : "نجاحك مسجّل لهذا الواجب المستقل، ونتيجتك محفوظة."
+              : result.courseId
+                ? "تقدر تبدأ محاولة واجب جديدة وتتدرّب تاني."
+                : "نتيجتك محفوظة. راجع التقييمات المتاحة للتدرّب تاني."}
           </p>
         )}
-        <Link className="button primary" href={`/learn/${result.courseId}`}>
-          ارجع للكورس
+        <Link
+          className="button primary"
+          href={result.courseId ? `/learn/${result.courseId}` : "/assessments"}
+        >
+          {result.courseId ? "ارجع للكورس" : "محاولاتي ونتائجي"}
         </Link>
       </section>
       {result.kind === "exam" &&

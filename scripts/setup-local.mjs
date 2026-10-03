@@ -1,5 +1,11 @@
 import { randomBytes, createHash } from "node:crypto";
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import {
+  readFileSync,
+  writeFileSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+} from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import pg from "pg";
@@ -92,6 +98,51 @@ try {
     if (recorded?.digest !== digest)
       throw new Error("Migration file differs from the applied local schema.");
   }
+  const appliedMigrations = [migrationName];
+  const additional = readdirSync(path.join(root, "supabase", "migrations"))
+    .filter(
+      (name) => /^\d{14}_[a-z0-9_]+\.sql$/.test(name) && name !== migrationName,
+    )
+    .sort();
+  for (const name of additional) {
+    const source = readFileSync(
+      path.join(root, "supabase", "migrations", name),
+      "utf8",
+    );
+    if (!source.trim()) throw new Error("Empty migration; setup refused.");
+    const hash = createHash("sha256").update(source).digest("hex");
+    const recorded = (
+      await admin.query(
+        "select digest from app_private.runtime_migrations where name=$1",
+        [name],
+      )
+    ).rows[0];
+    if (recorded) {
+      if (recorded.digest !== hash)
+        throw new Error(
+          "Migration file differs from the applied local schema.",
+        );
+    } else {
+      // Apply once through the same verified local connection. Keep the migration
+      // and its checksum record atomic, including files with transaction wrappers.
+      const body = source
+        .replace(/^\s*begin\s*;/im, "")
+        .replace(/commit\s*;\s*$/i, "");
+      await admin.query("begin");
+      try {
+        await admin.query(body);
+        await admin.query(
+          "insert into app_private.runtime_migrations(name,digest) values($1,$2)",
+          [name, hash],
+        );
+        await admin.query("commit");
+      } catch (error) {
+        await admin.query("rollback");
+        throw error;
+      }
+    }
+    appliedMigrations.push(name);
+  }
   const envPath = path.join(root, ".env.local");
   if (!existsSync(envPath)) {
     const password = randomBytes(32).toString("base64url");
@@ -118,7 +169,7 @@ try {
   console.log(
     JSON.stringify({
       localDatabaseReady: true,
-      migration: migrationName,
+      migrations: appliedMigrations,
       credentialsPrinted: false,
       existingDataPreserved: true,
     }),

@@ -1,4 +1,4 @@
-param([switch]$WithDataApi, [switch]$ServerOnlyAuth)
+param([switch]$WithDataApi, [switch]$ServerOnlyAuth, [switch]$ProductMode)
 $ErrorActionPreference = 'Stop'
 $experimentRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $priorProcessPath = $env:PATH
@@ -17,11 +17,21 @@ try {
     $excludedServices = 'realtime,storage-api,imgproxy,mailpit,postgrest,postgres-meta,studio,edge-runtime,logflare,vector,supavisor'
     if ($WithDataApi) {
         $excludedServices = 'realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor'
-        $env:DOROSNA_DATA_API_PROBE = '1'
+        if ($ProductMode) { $env:DOROSNA_DATA_API_PROBE = $null }
+        else { $env:DOROSNA_DATA_API_PROBE = '1' }
     }
     $didRequestStart = $true
-    & (Join-Path $experimentRoot 'node_modules\.bin\supabase.cmd') start --workdir $experimentRoot --network-id dorosna-auth-spike-local --exclude $excludedServices --agent no 1> (Join-Path $experimentRoot '.local\start.stdout.log') 2> (Join-Path $experimentRoot '.local\start.stderr.log')
-    if ($LASTEXITCODE -ne 0) { throw 'Local start failed; inspect ignored .local logs without printing credentials.' }
+    # Windows PowerShell treats redirected native stderr warnings as errors.
+    # Let the CLI finish, then check its exit code before verifying the services.
+    $priorStartErrorPreference = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = 'Continue'
+        & (Join-Path $experimentRoot 'node_modules\.bin\supabase.cmd') start --workdir $experimentRoot --network-id dorosna-auth-spike-local --exclude $excludedServices --agent no 1> (Join-Path $experimentRoot '.local\start.stdout.log') 2> (Join-Path $experimentRoot '.local\start.stderr.log')
+        $startExitCode = $LASTEXITCODE
+    } finally {
+        $ErrorActionPreference = $priorStartErrorPreference
+    }
+    if ($startExitCode -ne 0) { throw 'Local start failed; inspect ignored .local logs without printing credentials.' }
     $dockerPath = Join-Path $env:LOCALAPPDATA 'Programs\DockerDesktop\resources\bin\docker.exe'
     $containerNames = @('supabase_db_dorosna-auth-spike', 'supabase_auth_dorosna-auth-spike', 'supabase_kong_dorosna-auth-spike')
     if ($WithDataApi) { $containerNames += 'supabase_rest_dorosna-auth-spike' }

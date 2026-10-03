@@ -123,7 +123,7 @@ try {
   unitId = (
     await ok("admin/unit-save", { courseId, title: "وحدة تجربة" }, adminCookie)
   ).data.id;
-  await test("only_unlinked_draft_lesson_and_empty_unit_can_be_deleted", async () => {
+  await test("draft_unit_deletion_requires_confirmation_and_removes_unused_children", async () => {
     const temporaryUnit = (
       await ok(
         "admin/unit-save",
@@ -147,10 +147,29 @@ try {
     assert.equal(
       (await api("admin/unit-delete", { id: temporaryUnit }, adminCookie))
         .status,
-      409,
+      400,
     );
-    await ok("admin/lesson-delete", { id: temporary }, adminCookie);
-    await ok("admin/unit-delete", { id: temporaryUnit }, adminCookie);
+    await ok(
+      "admin/unit-delete",
+      { id: temporaryUnit, confirm: true },
+      adminCookie,
+    );
+    assert.equal(
+      (
+        await db.query("select id from app_private.lessons where id=$1", [
+          temporary,
+        ])
+      ).rowCount,
+      0,
+    );
+    assert.equal(
+      (
+        await db.query("select id from app_private.course_units where id=$1", [
+          temporaryUnit,
+        ])
+      ).rowCount,
+      0,
+    );
   });
   lessonId = (
     await ok(
@@ -263,7 +282,7 @@ try {
     assert.ok(html.includes(courseBody.title));
     assert.ok(!html.includes("درس مستقبلي مخفي " + suffix));
   });
-  await test("published_course_identity_and_lesson_deletion_are_frozen", async () => {
+  await test("published_course_identity_is_frozen_and_lesson_removal_preserves_content", async () => {
     assert.equal(
       (
         await api(
@@ -274,9 +293,30 @@ try {
       ).status,
       409,
     );
-    assert.equal(
-      (await api("admin/lesson-delete", { id: lessonId }, adminCookie)).status,
-      409,
+    const before = (
+      await db.query("select * from app_private.lessons where id=$1", [
+        lessonId,
+      ])
+    ).rows[0];
+    const removed = await ok(
+      "admin/lesson-delete",
+      { id: lessonId, confirm: true },
+      adminCookie,
+    );
+    assert.equal(removed.data.mode, "trash");
+    const after = (
+      await db.query("select * from app_private.lessons where id=$1", [
+        lessonId,
+      ])
+    ).rows[0];
+    assert.ok(after.deleted_at);
+    assert.equal(after.current_video_id, before.current_video_id);
+    assert.equal(after.published_at, before.published_at);
+    assert.equal(after.position, before.position);
+    await ok(
+      "admin/lesson-restore",
+      { id: lessonId, confirm: true },
+      adminCookie,
     );
     assert.equal(
       (await api("admin/video-submit", { lessonId }, adminCookie)).status,

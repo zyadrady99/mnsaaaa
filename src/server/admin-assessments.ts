@@ -16,6 +16,9 @@ export const assessmentActions: Record<string, string[]> = {
     "id",
     "versionId",
     "courseId",
+    "scope",
+    "gradeId",
+    "subjectId",
     "lessonId",
     "unitId",
     "kind",
@@ -28,6 +31,7 @@ export const assessmentActions: Record<string, string[]> = {
     "questions",
   ],
   "assessment-publish": ["versionId"],
+  "assessment-archive": ["id"],
 };
 type QuestionInput = {
   prompt: unknown;
@@ -97,6 +101,8 @@ export async function assessmentCommand(
       ).rows[0];
       if (
         course.status === "archived" ||
+        course.deleted_at ||
+        lesson.deleted_at ||
         lesson.published_at ||
         lesson.first_used_at
       )
@@ -104,6 +110,19 @@ export async function assessmentCommand(
           409,
           "lesson_frozen",
           "الدرس ده منشور أو مستخدم؛ محتواه الأساسي ثابت.",
+        );
+      if (
+        !(
+          await db.query(
+            "select id from app_private.course_units where id=$1 and deleted_at is null for share",
+            [lesson.unit_id],
+          )
+        ).rowCount
+      )
+        denied(
+          409,
+          "lesson_frozen",
+          "وحدة الدرس محذوفة؛ تجهيز الدرس أو نشره غير متاح.",
         );
       if (videoAction) {
         if (course.delivery_environment !== "development")
@@ -147,7 +166,7 @@ export async function assessmentCommand(
           await db.query(
             `select exists(select 1 from app_private.video_uploads where id=$1 and lesson_id=$2 and state='ready') and
           exists(select 1 from app_private.assessments a join app_private.assessment_versions v on v.id=a.current_version_id
-            where a.lesson_id=$2 and a.kind='homework' and v.published_at is not null) as ok`,
+            where a.lesson_id=$2 and a.kind='homework' and a.deleted_at is null and v.published_at is not null) as ok`,
             [lesson.current_video_id, lessonId],
           )
         ).rows[0];
@@ -185,6 +204,41 @@ export async function assessmentCommand(
         next: `/admin/courses/${course.id}`,
       };
     }
+    if (action === "assessment-archive") {
+      const id = uuid(body.id);
+      const assessment = (
+        await db.query(
+          "select * from app_private.assessments where id=$1 for update",
+          [id],
+        )
+      ).rows[0];
+      if (
+        !assessment ||
+        assessment.scope !== "standalone" ||
+        assessment.deleted_at
+      )
+        denied(
+          404,
+          "assessment_unavailable",
+          "التقييم المستقل غير موجود أو محذوف.",
+        );
+      if (assessment.status !== "published")
+        denied(
+          409,
+          "assessment_unavailable",
+          "الأرشفة متاحة للتقييم المستقل المنشور فقط.",
+        );
+      await db.query(
+        "update app_private.assessments set status='archived' where id=$1",
+        [id],
+      );
+      await audit(db, actor.id, action, "assessment", id);
+      return {
+        id,
+        next: `/admin/assessments/${id}`,
+        message: "التقييم اتأرشف. المحاولات الجارية والنتائج السابقة محفوظة.",
+      };
+    }
     if (action === "assessment-publish") {
       const versionId = uuid(body.versionId);
       const lookup = (
@@ -200,6 +254,26 @@ export async function assessmentCommand(
           [lookup.assessment_id],
         )
       ).rows[0];
+      if (assessment.deleted_at || assessment.status === "archived")
+        denied(
+          409,
+          "assessment_unavailable",
+          "التقييم محذوف أو مؤرشف؛ نشره غير متاح.",
+        );
+      if (
+        assessment.scope === "standalone" &&
+        !(
+          await db.query(
+            "select g.id from app_private.grades g join app_private.subjects s on s.id=$2 where g.id=$1 and g.enabled and s.enabled and g.deleted_at is null and s.deleted_at is null for share of g,s",
+            [assessment.grade_id, assessment.subject_id],
+          )
+        ).rowCount
+      )
+        denied(
+          409,
+          "reference_unavailable",
+          "الصف أو المادة غير متاحين للنشر.",
+        );
       const version = (
         await db.query(
           "select * from app_private.assessment_versions where id=$1 for update",
@@ -213,25 +287,60 @@ export async function assessmentCommand(
         [versionId],
       );
       await db.query(
-        "update app_private.assessments set current_version_id=$2 where id=$1",
+        "update app_private.assessments set current_version_id=$2,status='published' where id=$1",
         [assessment.id, versionId],
       );
       await audit(db, actor.id, action, "assessment_version", versionId);
       return {
         message: "التقييم اتنشر. المحاولات السابقة بتحتفظ بإصدارها.",
-        next: `/admin/courses/${assessment.course_id}`,
+        next:
+          assessment.scope === "standalone"
+            ? `/admin/assessments/${assessment.id}`
+            : `/admin/courses/${assessment.course_id}`,
         id: assessment.id,
       };
     }
     if (action !== "assessment-save")
       denied(404, "not_found", "العملية غير موجودة.");
-    const courseId = uuid(body.courseId),
+    const scope = body.scope ?? "course";
+    if (scope !== "course" && scope !== "standalone")
+      denied(
+        400,
+        "invalid_scope",
+        "اختار تقييمًا مستقلًا أو تقييمًا تابعًا لكورس.",
+      );
+    const standalone = scope === "standalone";
+    if (
+      standalone &&
+      [body.courseId, body.lessonId, body.unitId].some(
+        (value) => value !== undefined && value !== null && value !== "",
+      )
+    )
+      denied(
+        400,
+        "invalid_scope",
+        "التقييم المستقل لا يرتبط بكورس أو درس أو وحدة.",
+      );
+    if (
+      !standalone &&
+      [body.gradeId, body.subjectId].some(
+        (value) => value !== undefined && value !== null && value !== "",
+      )
+    )
+      denied(400, "invalid_scope", "صف ومادة تقييم الكورس يتحددان من الكورس.");
+    const courseId = standalone ? null : uuid(body.courseId),
+      gradeId = standalone ? uuid(body.gradeId) : null,
+      subjectId = standalone ? uuid(body.subjectId) : null,
       kind = body.kind;
     if (!["homework", "exam"].includes(String(kind)))
       denied(400, "invalid_kind", "اختار واجبًا أو امتحانًا.");
     const title = text(body.title, 180),
-      lessonId = kind === "homework" ? uuid(body.lessonId) : null,
-      unitId = kind === "exam" && body.unitId ? uuid(body.unitId) : null;
+      lessonId =
+        !standalone && kind === "homework" ? uuid(body.lessonId) : null,
+      unitId =
+        !standalone && kind === "exam" && body.unitId
+          ? uuid(body.unitId)
+          : null;
     const duration = kind === "exam" ? Number(body.durationMinutes) * 60 : null,
       maxAttempts = kind === "exam" ? Number(body.maxAttempts) : null,
       passPercent = kind === "exam" ? Number(body.passPercent) : 70;
@@ -296,14 +405,29 @@ export async function assessmentCommand(
         explanation: text(q.explanation ?? "", 3000, 0),
       };
     });
-    const course = (
-      await db.query(
-        "select * from app_private.courses where id=$1 for update",
-        [courseId],
-      )
-    ).rows[0];
-    if (!course || course.status === "archived")
+    const course = courseId
+      ? (
+          await db.query(
+            "select * from app_private.courses where id=$1 for update",
+            [courseId],
+          )
+        ).rows[0]
+      : null;
+    if (
+      !standalone &&
+      (!course || course.status === "archived" || course.deleted_at)
+    )
       denied(409, "course_unavailable", "الكورس غير متاح للتعديل.");
+    if (
+      standalone &&
+      !(
+        await db.query(
+          "select g.id from app_private.grades g join app_private.subjects s on s.id=$2 where g.id=$1 and g.enabled and s.enabled and g.deleted_at is null and s.deleted_at is null for share of g,s",
+          [gradeId, subjectId],
+        )
+      ).rowCount
+    )
+      denied(409, "reference_unavailable", "اختار صفًا ومادة متاحين.");
     if (
       lessonId &&
       !(
@@ -335,6 +459,9 @@ export async function assessmentCommand(
       ).rows[0];
       if (
         !assessment ||
+        assessment.scope !== scope ||
+        assessment.grade_id !== gradeId ||
+        assessment.subject_id !== subjectId ||
         assessment.course_id !== courseId ||
         assessment.kind !== kind ||
         assessment.lesson_id !== lessonId ||
@@ -343,7 +470,13 @@ export async function assessmentCommand(
         denied(
           409,
           "assessment_identity_frozen",
-          "التقييم لازم يفضل مرتبط بنفس الكورس والدرس أو الوحدة.",
+          "نوع التقييم والصف والمادة أو الكورس والدرس والوحدة ثابتون. أنشئ مسودة جديدة لتغييرهم.",
+        );
+      if (assessment.deleted_at || assessment.status === "archived")
+        denied(
+          409,
+          "assessment_unavailable",
+          "التقييم محذوف أو مؤرشف؛ تعديل إصداراته غير متاح.",
         );
       await db.query(
         "update app_private.assessments set title=$2 where id=$1",
@@ -352,6 +485,7 @@ export async function assessmentCommand(
     } else {
       assessmentId = randomUUID();
       if (
+        !standalone &&
         kind === "homework" &&
         (
           await db.query(
@@ -366,8 +500,18 @@ export async function assessmentCommand(
           "الدرس ليه واجب بالفعل. عدّل إصدار الواجب الموجود.",
         );
       await db.query(
-        "insert into app_private.assessments(id,course_id,lesson_id,unit_id,kind,title) values($1,$2,$3,$4,$5,$6)",
-        [assessmentId, courseId, lessonId, unitId, kind, title],
+        "insert into app_private.assessments(id,course_id,lesson_id,unit_id,kind,title,scope,grade_id,subject_id) values($1,$2,$3,$4,$5,$6,$7,$8,$9)",
+        [
+          assessmentId,
+          courseId,
+          lessonId,
+          unitId,
+          kind,
+          title,
+          scope,
+          gradeId,
+          subjectId,
+        ],
       );
     }
     let versionId: string;

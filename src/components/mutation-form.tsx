@@ -1,12 +1,20 @@
 "use client";
-import { useId, useRef, useState, type FormEvent } from "react";
+import { useId, useRef, useState, useTransition, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { ImageField } from "./image-field";
 
 export type FieldSpec = {
   name: string;
   label: string;
   type?:
-    "text" | "textarea" | "number" | "select" | "checkbox" | "datetime-local";
+    | "text"
+    | "textarea"
+    | "number"
+    | "select"
+    | "checkbox"
+    | "datetime-local"
+    | "image";
+  imageKind?: "teacher" | "course";
   value?: string | number | boolean;
   required?: boolean;
   hint?: string;
@@ -23,6 +31,7 @@ export function MutationForm({
   label = "حفظ",
   navigate = false,
   confirmMessage,
+  variant = "primary",
   children,
 }: {
   endpoint: string;
@@ -31,17 +40,29 @@ export function MutationForm({
   label?: string;
   navigate?: boolean;
   confirmMessage?: string;
+  variant?: "primary" | "secondary" | "danger";
   children?: React.ReactNode;
 }) {
   const prefix = useId(),
     router = useRouter();
   const [pending, setPending] = useState(false),
     [message, setMessage] = useState("");
+  const [refreshing, startRefresh] = useTransition();
+  const busy = pending || refreshing;
   const [error, setError] = useState("");
+  const [uploads, setUploads] = useState<string[]>([]);
+  function imageBusy(name: string, busy: boolean) {
+    setUploads((current) =>
+      busy
+        ? [...new Set([...current, name])]
+        : current.filter((field) => field !== name),
+    );
+  }
   const alert = useRef<HTMLDivElement>(null);
+  const classNameButton = `button ${variant}`;
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (pending) return;
+    if (busy || uploads.length) return;
     if (confirmMessage && !window.confirm(confirmMessage)) return;
     const form = event.currentTarget,
       values = new FormData(form),
@@ -67,11 +88,17 @@ export function MutationForm({
       if (!response.ok)
         throw new Error(result.message ?? "تعذر الحفظ. حاول تاني.");
       setMessage(result.message ?? "اتحفظ بنجاح.");
-      if (navigate && result.next) router.push(result.next);
-      router.refresh();
+      startRefresh(() => {
+        if (navigate && result.next) router.push(result.next);
+        router.refresh();
+      });
     } catch (error) {
       setError(
-        error instanceof Error ? error.message : "تعذر الاتصال. حاول تاني.",
+        error instanceof TypeError || error instanceof SyntaxError
+          ? "تعذر الاتصال. راجع اتصالك وحاول تاني."
+          : error instanceof Error
+            ? error.message
+            : "تعذر الاتصال. حاول تاني.",
       );
       requestAnimationFrame(() => alert.current?.focus());
     } finally {
@@ -79,7 +106,11 @@ export function MutationForm({
     }
   }
   return (
-    <form className="mutation-form" onSubmit={submit} aria-busy={pending}>
+    <form
+      className="mutation-form"
+      onSubmit={submit}
+      aria-busy={busy || uploads.length > 0}
+    >
       {error && (
         <div className="error-summary" role="alert" tabIndex={-1} ref={alert}>
           {error}
@@ -92,7 +123,7 @@ export function MutationForm({
           id,
           name: field.name,
           required: field.required,
-          disabled: pending || field.disabled,
+          disabled: busy || field.disabled,
           "aria-describedby": hint,
         };
         return (
@@ -112,7 +143,22 @@ export function MutationForm({
             ) : (
               <>
                 <label htmlFor={id}>{field.label}</label>
-                {field.type === "textarea" ? (
+                {field.type === "image" ? (
+                  <ImageField
+                    key={String(field.value ?? "")}
+                    id={id}
+                    name={field.name}
+                    label={field.label}
+                    kind={
+                      field.imageKind ??
+                      (field.name === "cover" ? "course" : "teacher")
+                    }
+                    value={String(field.value ?? "")}
+                    disabled={busy || field.disabled}
+                    describedBy={hint}
+                    onBusy={imageBusy}
+                  />
+                ) : field.type === "textarea" ? (
                   <textarea
                     {...shared}
                     rows={4}
@@ -152,8 +198,16 @@ export function MutationForm({
         );
       })}
       {children}
-      <button type="submit" className="button primary" disabled={pending}>
-        {pending ? "جاري الإتمام…" : label}
+      <button
+        type="submit"
+        className={classNameButton}
+        disabled={busy || uploads.length > 0}
+      >
+        {uploads.length
+          ? "انتظر اكتمال رفع الصورة…"
+          : busy
+            ? "جاري الإتمام…"
+            : label}
       </button>
       {message && (
         <p className="status-message" role="status">

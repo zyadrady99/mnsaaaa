@@ -121,6 +121,7 @@ export default async function StudentAdmin({
             </p>
             <MutationForm
               endpoint={`/api/admin/student-${student.status === "active" ? "disable" : "enable"}`}
+              variant={student.status === "active" ? "danger" : "primary"}
               body={{ studentId: id }}
               fields={
                 student.status === "active"
@@ -186,6 +187,7 @@ export default async function StudentAdmin({
                     <summary>سحب وصول الكورس</summary>
                     <MutationForm
                       endpoint="/api/admin/access-withdraw"
+                      variant="danger"
                       body={{ studentId: id, courseId: access.course_id }}
                       fields={[
                         {

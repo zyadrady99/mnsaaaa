@@ -102,7 +102,7 @@ export async function adminCodeCommand(
     }
     const course = (
       await db.query(
-        "select status from app_private.courses where id=$1 for share",
+        "select status from app_private.courses where id=$1 and deleted_at is null for share",
         [courseId],
       )
     ).rows[0];
@@ -168,7 +168,7 @@ export async function exportCodes(batchId: string, token: string) {
     uuid(batchId);
     const batch = (
       await db.query(
-        "select b.*,c.title from app_private.code_batches b join app_private.courses c on c.id=b.course_id where b.id=$1",
+        "select b.*,c.title from app_private.code_batches b join app_private.courses c on c.id=b.course_id where b.id=$1 and b.deleted_at is null",
         [batchId],
       )
     ).rows[0];
@@ -176,7 +176,7 @@ export async function exportCodes(batchId: string, token: string) {
     const rows = (
       await db.query(
         `select c.id,c.export_ciphertext,c.cancelled_at,a.activated_at from app_private.activation_codes c
-      left join app_private.activations a on a.code_id=c.id where c.batch_id=$1 order by c.id`,
+      left join app_private.activations a on a.code_id=c.id where c.batch_id=$1 and c.deleted_at is null order by c.id`,
         [batchId],
       )
     ).rows;
@@ -217,7 +217,7 @@ async function lockedCode(db: import("pg").PoolClient, raw: unknown) {
     denied(400, "code_unavailable", "راجع الكود المكتوب. الكود غير متاح.");
   const course = (
     await db.query(
-      "select id,title,slug,status from app_private.courses where id=$1 for share",
+      "select id,title,slug,status,deleted_at from app_private.courses where id=$1 for share",
       [found.course_id],
     )
   ).rows[0];
@@ -253,7 +253,11 @@ export async function studentCodeCommand(
       denied(400, "code_unavailable", "الكود غير متاح. راجع إدارة السنتر.");
     if (
       !prior &&
-      (course.status !== "published" || row.cancelled_at || !row.unexpired)
+      (course.status !== "published" ||
+        course.deleted_at ||
+        row.deleted_at ||
+        row.cancelled_at ||
+        !row.unexpired)
     )
       denied(400, "code_unavailable", "الكود غير متاح. راجع إدارة السنتر.");
     if (action === "preview")

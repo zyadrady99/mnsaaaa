@@ -13,7 +13,10 @@ export type EditableQuestion = {
 export type AssessmentDraft = {
   id?: string;
   versionId?: string;
-  courseId: string;
+  scope?: "course" | "standalone";
+  courseId?: string;
+  gradeId?: string;
+  subjectId?: string;
   kind: "homework" | "exam";
   lessonId?: string;
   unitId?: string;
@@ -25,7 +28,16 @@ export type AssessmentDraft = {
   closesAt: string;
   questions: EditableQuestion[];
 };
-export function AssessmentEditor({ initial }: { initial: AssessmentDraft }) {
+export function AssessmentEditor({
+  initial,
+  references,
+}: {
+  initial: AssessmentDraft;
+  references?: {
+    grades: { id: string; name: string }[];
+    subjects: { id: string; name: string }[];
+  };
+}) {
   const router = useRouter(),
     prefix = useId();
   const [questions, setQuestions] = useState(
@@ -59,6 +71,19 @@ export function AssessmentEditor({ initial }: { initial: AssessmentDraft }) {
     try {
       const body = {
         ...initial,
+        scope: initial.scope ?? "course",
+        gradeId:
+          initial.scope === "standalone"
+            ? initial.id
+              ? initial.gradeId
+              : String(form.get("gradeId"))
+            : undefined,
+        subjectId:
+          initial.scope === "standalone"
+            ? initial.id
+              ? initial.subjectId
+              : String(form.get("subjectId"))
+            : undefined,
         title: String(form.get("title")),
         durationMinutes: Number(form.get("duration")),
         maxAttempts: Number(form.get("maxAttempts")),
@@ -110,6 +135,54 @@ export function AssessmentEditor({ initial }: { initial: AssessmentDraft }) {
           defaultValue={initial.title}
         />
       </div>
+      {initial.scope === "standalone" && (
+        <>
+          <div className="editor-columns">
+            <div className="field">
+              <label htmlFor={`${prefix}-grade`}>الصف الدراسي</label>
+              <select
+                id={`${prefix}-grade`}
+                name="gradeId"
+                required
+                defaultValue={initial.gradeId ?? ""}
+                disabled={pending || Boolean(initial.id)}
+              >
+                <option value="" disabled>
+                  اختار الصف الدراسي
+                </option>
+                {references?.grades.map((grade) => (
+                  <option key={grade.id} value={grade.id}>
+                    {grade.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="field">
+              <label htmlFor={`${prefix}-subject`}>المادة</label>
+              <select
+                id={`${prefix}-subject`}
+                name="subjectId"
+                required
+                defaultValue={initial.subjectId ?? ""}
+                disabled={pending || Boolean(initial.id)}
+              >
+                <option value="" disabled>
+                  اختار المادة
+                </option>
+                {references?.subjects.map((subject) => (
+                  <option key={subject.id} value={subject.id}>
+                    {subject.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <p className="field-hint">
+            متاح لحسابات الطلاب النشطة من الصف المحدد، بدون كود كورس.{" "}
+            {initial.id && "الصف والمادة ثابتان؛ أنشئ مسودة جديدة لتغييرهما."}
+          </p>
+        </>
+      )}
       {initial.kind === "exam" ? (
         <>
           <div className="editor-columns">
@@ -268,7 +341,7 @@ export function AssessmentEditor({ initial }: { initial: AssessmentDraft }) {
             {question.options.length > 2 && (
               <button
                 type="button"
-                className="button secondary small"
+                className="button danger small"
                 onClick={() =>
                   update(index, {
                     options: question.options.slice(0, -1),
@@ -300,7 +373,7 @@ export function AssessmentEditor({ initial }: { initial: AssessmentDraft }) {
           {questions.length > 1 && (
             <button
               type="button"
-              className="button secondary small"
+              className="button danger small"
               onClick={() =>
                 setQuestions((old) => old.filter((_, i) => i !== index))
               }

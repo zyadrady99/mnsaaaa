@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { CatalogImage } from "@/components/catalog-image";
 import Link from "next/link";
 import {
   ArrowUpLeft,
@@ -21,12 +21,13 @@ export function CourseCard({ course }: { course: Course }) {
   return (
     <Link href={`/courses/${course.slug}`} className="course-card card-link">
       <div className={`course-cover theme-${course.subject}`}>
-        <Image
+        <CatalogImage
           src={course.cover}
+          kind="course"
           alt=""
           width={640}
-          height={480}
-          sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw"
+          height={360}
+          sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw"
         />
         <span className="cover-badge">
           {course.gradeName ?? gradeLabel(course.grade)}
@@ -36,9 +37,16 @@ export function CourseCard({ course }: { course: Course }) {
         <span className="eyebrow">
           {course.subjectName ?? subjectLabel(course.subject)}
         </span>
-        <h3>{course.title}</h3>
+        <h3 className="course-card-title">{course.title}</h3>
         <div className="teacher-byline">
-          <Image src={teacher.portrait} alt="" width={32} height={32} />
+          <CatalogImage
+            src={teacher.portrait}
+            kind="teacher"
+            alt=""
+            width={36}
+            height={36}
+            compact
+          />
           <span>أ. {teacher.name}</span>
         </div>
         <div className="card-footer">
@@ -62,12 +70,13 @@ export function TeacherCard({ teacher }: { teacher: Teacher }) {
   return (
     <Link href={`/teachers/${teacher.slug}`} className="teacher-card card-link">
       <div className={`teacher-portrait theme-${teacher.subject}`}>
-        <Image
+        <CatalogImage
           src={teacher.portrait}
-          alt={`رسم تجريبي للمدرس ${teacher.name}`}
+          kind="teacher"
+          alt=""
           width={400}
           height={400}
-          sizes="(max-width: 767px) 50vw, 25vw"
+          sizes="(max-width: 600px) 110px, (max-width: 900px) 50vw, 25vw"
         />
         <span className="portrait-subject">
           {teacher.subjectName ?? subjectLabel(teacher.subject)}
@@ -83,7 +92,10 @@ export function TeacherCard({ teacher }: { teacher: Teacher }) {
             <BookOpen size={18} aria-hidden="true" />
             {arabicNumber(count)} كورسات
           </span>
-          <ArrowUpLeft size={21} aria-hidden="true" />
+          <span className="teacher-card-action">
+            عرض الكورسات
+            <ArrowUpLeft size={18} aria-hidden="true" />
+          </span>
         </div>
       </div>
     </Link>

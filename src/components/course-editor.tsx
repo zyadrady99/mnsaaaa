@@ -18,15 +18,11 @@ export async function CourseEditor({ course }: { course?: EditableCourse }) {
   const [refs, teacherResult] = await Promise.all([
     referenceData(),
     database().query(
-      "select id,name from app_private.teachers where enabled or id=$1 order by name",
+      "select id,name from app_private.teachers where deleted_at is null and (enabled or id=$1) order by name",
       [course?.teacher_id ?? null],
     ),
   ]);
   const teachers = teacherResult.rows;
-  const covers = ["physics", "chemistry", "math", "arabic"].map((name, i) => ({
-    value: `/images/course-${name}.svg`,
-    label: `غلاف تجريبي ${i + 1}`,
-  }));
   const frozen = Boolean(course && course.status !== "draft");
   const fields: FieldSpec[] = [
     {
@@ -89,10 +85,9 @@ export async function CourseEditor({ course }: { course?: EditableCourse }) {
     {
       name: "cover",
       label: "غلاف الكورس",
-      type: "select",
-      value: course?.cover_ref ?? covers[0].value,
-      options: covers,
-      required: true,
+      type: "image",
+      imageKind: "course",
+      value: course?.cover_ref ?? "",
     },
     {
       name: "outcomes",

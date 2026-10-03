@@ -9,7 +9,9 @@ import { MutationForm } from "@/components/mutation-form";
 import { requireAccount } from "@/server/auth";
 import { database } from "@/server/db";
 import { validUuid } from "@/lib/auth-input";
-import { cairoInput } from "@/lib/time";
+import { cairoInput, cairoDate } from "@/lib/time";
+import { referenceData } from "@/server/catalog";
+import { arabicNumber } from "@/lib/catalog";
 export const metadata = { title: "إدارة التقييم" };
 export default async function AssessmentAdmin({
   params,
@@ -24,11 +26,50 @@ export default async function AssessmentAdmin({
   const query = await searchParams;
   const assessment = (
     await database().query(
-      "select * from app_private.assessments where id=$1",
+      "select a.*,g.name as grade_name,s.name as subject_name from app_private.assessments a left join app_private.grades g on g.id=a.grade_id left join app_private.subjects s on s.id=a.subject_id where a.id=$1",
       [id],
     )
   ).rows[0];
   if (!assessment) notFound();
+  const standalone = assessment.scope === "standalone";
+  const refs = standalone ? await referenceData() : null;
+  const references = refs
+    ? {
+        grades: refs.grades
+          .filter((g) => g.enabled || g.id === assessment.grade_id)
+          .map((g) => ({ id: g.id, name: g.name })),
+        subjects: refs.subjects
+          .filter((s) => s.enabled || s.id === assessment.subject_id)
+          .map((s) => ({ id: s.id, name: s.name })),
+      }
+    : undefined;
+  if (
+    references &&
+    !references.grades.some((g) => g.id === assessment.grade_id)
+  )
+    references.grades.push({
+      id: assessment.grade_id,
+      name: assessment.grade_name,
+    });
+  if (
+    references &&
+    !references.subjects.some((s) => s.id === assessment.subject_id)
+  )
+    references.subjects.push({
+      id: assessment.subject_id,
+      name: assessment.subject_name,
+    });
+  const editable = !assessment.deleted_at && assessment.status !== "archived";
+  const attempts = (
+    await database().query(
+      `select t.id,t.student_id,t.attempt_number,t.status,t.started_at,t.submitted_at,
+      a.full_name,r.earned_points,r.possible_points,r.passed
+      from app_private.attempts t join app_private.accounts a on a.id=t.student_id
+      left join app_private.attempt_results r on r.attempt_id=t.id
+      where t.assessment_id=$1 order by t.started_at desc,t.id limit 100`,
+      [id],
+    )
+  ).rows;
   const versions = (
     await database().query(
       "select * from app_private.assessment_versions where assessment_id=$1 order by version_number desc",
@@ -62,6 +103,9 @@ export default async function AssessmentAdmin({
     id,
     versionId: selected.published_at ? undefined : selected.id,
     courseId: assessment.course_id,
+    scope: assessment.scope,
+    gradeId: assessment.grade_id ?? undefined,
+    subjectId: assessment.subject_id ?? undefined,
     kind: assessment.kind,
     lessonId: assessment.lesson_id ?? undefined,
     unitId: assessment.unit_id ?? undefined,
@@ -86,9 +130,13 @@ export default async function AssessmentAdmin({
       <div className="button-row">
         <Link
           className="button secondary"
-          href={`/admin/courses/${assessment.course_id}`}
+          href={
+            standalone
+              ? "/admin/assessments"
+              : `/admin/courses/${assessment.course_id}`
+          }
         >
-          الرجوع للكورس
+          {standalone ? "كل الواجبات والامتحانات" : "الرجوع للكورس"}
         </Link>
         {versions.map((v) => (
           <Link
@@ -100,7 +148,20 @@ export default async function AssessmentAdmin({
           </Link>
         ))}
       </div>
-      {!selected.published_at && (
+      {standalone && (
+        <p className="status-message">
+          {assessment.kind === "homework" ? "واجب مستقل" : "امتحان مستقل"} ·{" "}
+          {assessment.grade_name} · {assessment.subject_name} ·{" "}
+          {assessment.deleted_at
+            ? "محذوف من العرض"
+            : assessment.status === "archived"
+              ? "مؤرشف"
+              : assessment.status === "published"
+                ? "منشور"
+                : "مسودة"}
+        </p>
+      )}
+      {editable && !selected.published_at && (
         <section className="workspace-panel page-section">
           <h2>نشر الإصدار {selected.version_number}</h2>
           <MutationForm
@@ -112,9 +173,116 @@ export default async function AssessmentAdmin({
           />
         </section>
       )}
+      {editable ? (
+        <section className="workspace-panel page-section">
+          <h2>
+            {selected.published_at ? "إنشاء إصدار جديد" : "تحرير المسودة"}
+          </h2>
+          <AssessmentEditor
+            key={selected.id}
+            initial={initial}
+            references={references}
+          />
+        </section>
+      ) : (
+        <section className="workspace-panel page-section">
+          <h2>مراجعة الأسئلة</h2>
+          <p className="muted">
+            التقييم محذوف أو مؤرشف؛ الأسئلة والنتائج محفوظة للمراجعة.
+          </p>
+          <div className="admin-list">
+            {questions.map((question, index) => (
+              <article key={question.uid}>
+                <h3>
+                  {index + 1}. {question.prompt}
+                </h3>
+                <p>الإجابة الصحيحة: {question.options[question.correct]}</p>
+                {question.explanation && (
+                  <p className="muted">{question.explanation}</p>
+                )}
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
       <section className="workspace-panel page-section">
-        <h2>{selected.published_at ? "إنشاء إصدار جديد" : "تحرير المسودة"}</h2>
-        <AssessmentEditor key={selected.id} initial={initial} />
+        <h2>المحاولات والنتائج الأخيرة</h2>
+        <p className="muted">
+          آخر ١٠٠ محاولة لهذا التقييم. كل محاولة تحتفظ بإصدارها.
+        </p>
+        {attempts.length ? (
+          <div className="admin-table-wrap">
+            <table
+              className="admin-table"
+              aria-label="محاولات التقييم ونتائجها"
+            >
+              <thead>
+                <tr>
+                  <th scope="col">الطالب</th>
+                  <th scope="col">المحاولة</th>
+                  <th scope="col">الحالة</th>
+                  <th scope="col">النتيجة</th>
+                  <th scope="col">الوقت</th>
+                </tr>
+              </thead>
+              <tbody>
+                {attempts.map((attempt) => (
+                  <tr key={attempt.id}>
+                    <td data-label="الطالب">
+                      <Link
+                        href={`/admin/students/${attempt.student_id}`}
+                        className="text-link"
+                      >
+                        {attempt.full_name}
+                      </Link>
+                    </td>
+                    <td data-label="المحاولة">{attempt.attempt_number}</td>
+                    <td data-label="الحالة">
+                      {attempt.status === "submitted" ? "تم التسليم" : "جارية"}
+                    </td>
+                    <td data-label="النتيجة">
+                      {attempt.possible_points
+                        ? `${arabicNumber(Number(attempt.earned_points))} / ${arabicNumber(Number(attempt.possible_points))} · ${attempt.passed ? "ناجح" : "يحتاج تدريب"}`
+                        : "لم تُسلّم بعد"}
+                    </td>
+                    <td data-label="الوقت">
+                      {cairoDate(attempt.submitted_at ?? attempt.started_at)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="muted">لسه مفيش محاولات للتقييم ده.</p>
+        )}
+      </section>
+      <section className="workspace-panel page-section">
+        <h2>إجراءات التقييم</h2>
+        {standalone &&
+          !assessment.deleted_at &&
+          assessment.status === "published" && (
+            <MutationForm
+              endpoint="/api/admin/assessment-archive"
+              fields={[]}
+              body={{ id }}
+              label="أرشفة التقييم المستقل"
+              confirmMessage="أرشفة التقييم توقف المحاولات الجديدة وتحفظ المحاولات الجارية والنتائج. تأكيد الأرشفة؟"
+            />
+          )}
+        <MutationForm
+          endpoint={`/api/admin/assessment-${assessment.deleted_at ? "restore" : "delete"}`}
+          fields={[]}
+          body={{ id, confirm: true }}
+          label={assessment.deleted_at ? "استعادة التقييم" : "حذف التقييم"}
+          variant={assessment.deleted_at ? "secondary" : "danger"}
+          confirmMessage={
+            assessment.deleted_at
+              ? "استعادة ظهور التقييم حسب حالته السابقة؟"
+              : "حذف التقييم؟ المسودة غير المنشورة بلا محاولات تُحذف نهائيًا، والتقييم المنشور أو المستخدم يُخفى مع حفظ المحاولات والنتائج."
+          }
+          navigate
+        />
       </section>
     </>
   );

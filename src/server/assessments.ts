@@ -12,16 +12,75 @@ async function context(
   studentId: string,
   assessmentId: string,
   allowExpired = false,
+  continueExisting = false,
+  start = false,
 ) {
-  const assessment = (
+  let assessment = (
     await db.query(
       `select a.*,coalesce(a.lesson_id,(select l.id from app_private.lessons l where l.course_id=a.course_id and l.published_at is not null and (a.unit_id is null or l.unit_id=a.unit_id) order by l.position limit 1)) as anchor_lesson_id
     from app_private.assessments a where a.id=$1`,
       [assessmentId],
     )
   ).rows[0];
-  if (!assessment || !assessment.anchor_lesson_id)
+  if (!assessment)
     denied(404, "assessment_unavailable", "التقييم غير موجود أو غير جاهز.");
+  if (assessment.scope === "standalone") {
+    assessment = (
+      await db.query(
+        `select a.*,g.deleted_at as grade_deleted_at,s.deleted_at as subject_deleted_at
+        from app_private.assessments a join app_private.grades g on g.id=a.grade_id
+        join app_private.subjects s on s.id=a.subject_id where a.id=$1
+        ${start ? "for update of a for share of g,s" : "for share of a,g,s"}`,
+        [assessmentId],
+      )
+    ).rows[0];
+    const profile = (
+      await db.query(
+        "select grade_id from app_private.student_profiles where account_id=$1 for share",
+        [studentId],
+      )
+    ).rows[0];
+    if (!assessment || !profile || profile.grade_id !== assessment.grade_id)
+      denied(
+        403,
+        "grade_required",
+        "التقييم ده متاح لطلاب صفه الدراسي فقط. راجع الصف المسجّل في حسابك.",
+      );
+    if (
+      !continueExisting &&
+      (assessment.status !== "published" ||
+        assessment.deleted_at ||
+        assessment.grade_deleted_at ||
+        assessment.subject_deleted_at)
+    )
+      denied(
+        404,
+        "assessment_unavailable",
+        "التقييم غير منشور أو اتوقف عن استقبال محاولات جديدة.",
+      );
+    if (
+      continueExisting &&
+      !["published", "archived"].includes(assessment.status)
+    )
+      denied(
+        403,
+        "assessment_unavailable",
+        "المحاولة غير متاحة للحالة الحالية.",
+      );
+    return { assessment, lesson: null };
+  }
+  if (!assessment.anchor_lesson_id)
+    denied(404, "assessment_unavailable", "التقييم غير موجود أو غير جاهز.");
+  if (
+    !continueExisting &&
+    assessment.deleted_at &&
+    assessment.kind !== "homework"
+  )
+    denied(
+      404,
+      "assessment_unavailable",
+      "التقييم اتوقف عن استقبال محاولات جديدة.",
+    );
   const learning = await learningContext(
     db,
     studentId,
@@ -63,7 +122,7 @@ export async function finalizeAttempt(
     "update app_private.attempts set status='submitted',submitted_at=clock_timestamp(),submission_kind=$2,result_id=id where id=$1",
     [attempt.id, kind],
   );
-  if (attempt.kind === "homework" && scores.passed)
+  if (attempt.kind === "homework" && scores.passed && attempt.course_id)
     await db.query(
       `insert into app_private.homework_passes(student_id,assessment_id,course_id,first_pass_attempt_id,passed_at)
     values($1,$2,$3,$4,clock_timestamp()) on conflict do nothing`,
@@ -104,6 +163,7 @@ export async function assessmentPreview(assessmentId: string, token: string) {
       id: assessment.id,
       title: assessment.title,
       courseId: assessment.course_id,
+      scope: assessment.scope as "course" | "standalone",
       versionId: version.id,
       kind: assessment.kind as "homework" | "exam",
       durationSeconds: version.duration_seconds as number | null,
@@ -132,7 +192,14 @@ export async function startAttempt(
     const actor = await identity(db, token, "student", true),
       assessmentId = uuid(body.assessmentId),
       versionId = uuid(body.versionId);
-    const { assessment, lesson } = await context(db, actor.id, assessmentId);
+    const { assessment, lesson } = await context(
+      db,
+      actor.id,
+      assessmentId,
+      false,
+      false,
+      true,
+    );
     await db.query(
       "select id from app_private.assessments where id=$1 for update",
       [assessmentId],
@@ -193,13 +260,16 @@ export async function startAttempt(
         "الامتحان خارج موعده أو محاولاتك خلصت.",
       );
     // The account/course/gate locks are still held; check access at the final clock.
-    const live = (
-      await db.query(
-        "select access_until>$3::timestamptz and withdrawn_at is null as active from app_private.course_access where student_id=$1 and course_id=$2",
-        [actor.id, assessment.course_id, timing.starts],
-      )
-    ).rows[0];
-    if (!live?.active)
+    const live =
+      assessment.scope === "course"
+        ? (
+            await db.query(
+              "select access_until>$3::timestamptz and withdrawn_at is null as active from app_private.course_access where student_id=$1 and course_id=$2",
+              [actor.id, assessment.course_id, timing.starts],
+            )
+          ).rows[0]
+        : null;
+    if (assessment.scope === "course" && !live?.active)
       denied(
         403,
         "access_required",
@@ -221,10 +291,11 @@ export async function startAttempt(
         timing.deadline,
       ],
     );
-    await db.query(
-      "update app_private.lessons set first_used_at=coalesce(first_used_at,clock_timestamp()) where id=$1",
-      [lesson.id],
-    );
+    if (lesson)
+      await db.query(
+        "update app_private.lessons set first_used_at=coalesce(first_used_at,clock_timestamp()) where id=$1",
+        [lesson.id],
+      );
     return { id, next: `/attempts/${id}` };
   });
 }
@@ -275,7 +346,13 @@ export async function readAttempt(id: string, token: string) {
       )
     ).rows[0];
     if (status.status === "in_progress" && !status.due)
-      await context(db, actor.id, lookup.assessment_id, lookup.kind === "exam");
+      await context(
+        db,
+        actor.id,
+        lookup.assessment_id,
+        lookup.kind === "exam",
+        true,
+      );
     const attempt = await owned(db, actor.id, id);
     if (attempt.status === "submitted")
       return { submitted: true as const, next: `/results/${id}` };
@@ -296,7 +373,8 @@ export async function readAttempt(id: string, token: string) {
       title: assessment.title as string,
       studentId: actor.id,
       kind: attempt.kind as "homework" | "exam",
-      courseId: attempt.course_id as string,
+      courseId: attempt.course_id as string | null,
+      assessmentId: attempt.assessment_id as string,
       attemptNumber: attempt.attempt_number as number,
       deadlineAt: attempt.deadline_at as string | null,
       remainingMs: attempt.deadline_at ? Number(remaining.ms) : null,
@@ -321,7 +399,13 @@ export async function attemptCommand(
     ).rows[0];
     if (!lookup) denied(404, "attempt_unavailable", "المحاولة غير موجودة.");
     if (lookup.status === "in_progress" && !lookup.due)
-      await context(db, actor.id, lookup.assessment_id, lookup.kind === "exam");
+      await context(
+        db,
+        actor.id,
+        lookup.assessment_id,
+        lookup.kind === "exam",
+        true,
+      );
     const attempt = await owned(db, actor.id, id);
     if (attempt.status === "submitted") {
       if (action === "submit")
@@ -430,7 +514,8 @@ export async function readResult(id: string, token: string) {
     return {
       id,
       title: result.title as string,
-      courseId: attempt.course_id as string,
+      courseId: attempt.course_id as string | null,
+      assessmentId: attempt.assessment_id as string,
       kind: attempt.kind as "homework" | "exam",
       attemptNumber: attempt.attempt_number as number,
       earnedPoints: Number(result.earned_points),
@@ -460,4 +545,22 @@ export async function runDueAttempts(limit = 20) {
     finalized++;
   }
   return finalized;
+}
+
+export async function standaloneHistory(token: string) {
+  return transaction(async (db) => {
+    const actor = await identity(db, token, "student", true);
+    return (
+      await db.query(
+        `select t.id,t.assessment_id,t.kind,t.attempt_number,t.status,t.started_at,t.deadline_at,t.submitted_at,
+      a.title,g.name as grade_name,s.name as subject_name,r.earned_points,r.possible_points,r.passed
+      from app_private.attempts t join app_private.assessments a on a.id=t.assessment_id
+      join app_private.grades g on g.id=a.grade_id join app_private.subjects s on s.id=a.subject_id
+      left join app_private.attempt_results r on r.attempt_id=t.id
+      where t.student_id=$1 and a.scope='standalone'
+      order by t.started_at desc,t.id limit 50`,
+        [actor.id],
+      )
+    ).rows;
+  });
 }

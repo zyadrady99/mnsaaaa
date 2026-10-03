@@ -18,10 +18,10 @@ export type Reference = {
 export const referenceData = cache(async () => {
   const [grades, subjects] = await Promise.all([
     database().query<Reference>(
-      "select id,slug,name,enabled from app_private.grades order by sort_order",
+      "select id,slug,name,enabled from app_private.grades where deleted_at is null order by sort_order",
     ),
     database().query<Reference>(
-      "select id,slug,name,enabled from app_private.subjects order by name",
+      "select id,slug,name,enabled from app_private.subjects where deleted_at is null order by name",
     ),
   ]);
   return { grades: grades.rows, subjects: subjects.rows };
@@ -34,18 +34,18 @@ export const publicCatalog = cache(async () => {
     t.id as teacher_id,t.slug as teacher_slug,t.name as teacher_name,t.biography,t.image_ref,t.approach,
     coalesce((select jsonb_agg(jsonb_build_object('id',u.id,'title',u.title,'lessons',
       coalesce((select jsonb_agg(jsonb_build_object('id',l.id,'title',l.title,'minutes',l.minutes) order by l.position)
-        from app_private.lessons l where l.unit_id=u.id and l.published_at is not null),'[]'::jsonb)) order by u.position)
-      from app_private.course_units u where u.course_id=c.id and exists(select 1 from app_private.lessons l where l.unit_id=u.id and l.published_at is not null)),'[]'::jsonb) as units
+        from app_private.lessons l where l.unit_id=u.id and l.published_at is not null and l.deleted_at is null),'[]'::jsonb)) order by u.position)
+      from app_private.course_units u where u.course_id=c.id and u.deleted_at is null and exists(select 1 from app_private.lessons l where l.unit_id=u.id and l.published_at is not null and l.deleted_at is null)),'[]'::jsonb) as units
     from app_private.courses c join app_private.teachers t on t.id=c.teacher_id
     join app_private.grades g on g.id=c.grade_id join app_private.subjects s on s.id=c.subject_id
-    where c.status='published' and t.enabled and g.enabled and s.enabled order by c.published_at desc,c.id`)
+    where c.status='published' and c.deleted_at is null and t.deleted_at is null and g.deleted_at is null and s.deleted_at is null and t.enabled and g.enabled and s.enabled order by c.published_at desc,c.id`)
   ).rows;
   const courses: Course[] = rows.map((row) => ({
     id: row.id,
     slug: row.slug,
     title: row.title,
     subtitle: row.subtitle,
-    cover: row.cover_ref ?? `/images/course-${row.subject}.svg`,
+    cover: row.cover_ref ?? "",
     outcomes: row.outcomes,
     units: row.units,
     grade: row.grade as GradeId,
@@ -60,7 +60,7 @@ export const publicCatalog = cache(async () => {
       subject: row.subject,
       subjectName: row.subject_name,
       grades: [],
-      portrait: row.image_ref ?? "/images/teacher-ahmed.svg",
+      portrait: row.image_ref ?? "",
       description: row.biography,
       approach: row.approach,
     },
@@ -68,7 +68,7 @@ export const publicCatalog = cache(async () => {
   const teacherRows = (
     await database()
       .query(`select t.id,t.slug,t.name,t.biography,t.image_ref,t.approach,s.slug as subject,s.name as subject_name
-    from app_private.teachers t join app_private.subjects s on s.id=t.subject_id where t.enabled and s.enabled order by t.name`)
+    from app_private.teachers t join app_private.subjects s on s.id=t.subject_id where t.deleted_at is null and s.deleted_at is null and t.enabled and s.enabled order by t.name`)
   ).rows;
   const teachers: Teacher[] = teacherRows.map((row) => {
     const owned = courses.filter((course) => course.teacherSlug === row.slug);
@@ -77,7 +77,7 @@ export const publicCatalog = cache(async () => {
       slug: row.slug,
       name: row.name,
       description: row.biography,
-      portrait: row.image_ref ?? "/images/teacher-ahmed.svg",
+      portrait: row.image_ref ?? "",
       approach: row.approach,
       subject: row.subject,
       subjectName: row.subject_name,
