@@ -6,3 +6,8 @@ docs
 design-system
 src/fonts
 package-lock.json
+.vercel
+.netlify
+supabase/.temp
+supabase/.branches
+supabase/signing_keys.json

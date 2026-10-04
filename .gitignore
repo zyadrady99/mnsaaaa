@@ -11,3 +11,10 @@ next-env.d.ts
 __pycache__/
 *.pyc
 
+# Deployment metadata and local Supabase CLI caches.
+.vercel/
+.netlify/
+supabase/.temp/
+supabase/.branches/
+supabase/signing_keys.json
+

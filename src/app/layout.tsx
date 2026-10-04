@@ -4,12 +4,13 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { Flask } from "@phosphor-icons/react/dist/ssr";
 import { Suspense } from "react";
-import { AccountMenu } from "@/components/account-menu";
-import { Brand } from "@/components/brand";
-import { Navigation } from "@/components/navigation";
-import { ThemeProvider, ThemeToggle } from "@/components/theme-provider";
+import { AccountMenu } from "@/components/common/account-menu";
+import { Brand } from "@/components/common/brand";
+import { Navigation } from "@/components/common/navigation";
+import { ThemeProvider, ThemeToggle } from "@/components/common/theme-provider";
 import { themeCookie, themeFromCookie } from "@/lib/theme";
 import "./globals.css";
+import "./student-design.css";
 
 const cairo = localFont({
   src: [
@@ -55,11 +56,9 @@ export default async function RootLayout({
             <div className="container">
               <span>
                 <Flask size={17} aria-hidden="true" />
-                نسخة محلية للتجربة · المحتوى الدراسي بيانات تجريبية
+                نسخة للتجربة · المحتوى الدراسي بيانات تجريبية
               </span>
-              <span className="preview-note">
-                جرّب الحسابات والوظائف قبل النشر
-              </span>
+              <span className="preview-note">خطوة بخطوة، من الفهم للتدريب</span>
             </div>
           </aside>
           <header className="site-header">

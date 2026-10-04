@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PageHeading, Breadcrumbs } from "@/components/page-heading";
-import { LessonPlayer } from "@/components/lesson-player";
-import { requireAccount } from "@/server/auth";
-import { database } from "@/server/db";
+import { PageHeading, Breadcrumbs } from "@/components/common/page-heading";
+import { LessonPlayer } from "@/components/learning/lesson-player";
+import { requireAccount } from "@/server/auth/service";
+import { database } from "@/server/core/db";
 import { validUuid } from "@/lib/auth-input";
 import { cairoDate } from "@/lib/time";
 export const metadata = { title: "المذاكرة" };

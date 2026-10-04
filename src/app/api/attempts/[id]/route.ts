@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { readAttempt } from "@/server/assessments";
-import { requestToken } from "@/server/auth";
-import { errorResponse, privateHeaders } from "@/server/http";
+import { readAttempt } from "@/server/assessments/service";
+import { requestToken } from "@/server/auth/service";
+import { errorResponse, privateHeaders } from "@/server/core/http";
 export const runtime = "nodejs";
 export async function GET(
   _request: Request,

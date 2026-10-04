@@ -1,5 +1,5 @@
-import { AdminShell } from "@/components/admin-shell";
-import { requireAccount } from "@/server/auth";
+import { AdminShell } from "@/components/admin/admin-shell";
+import { requireAccount } from "@/server/auth/service";
 
 export default async function AdminLayout({
   children,

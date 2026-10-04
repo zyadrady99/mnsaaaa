@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PageHeading } from "@/components/page-heading";
-import { MutationForm } from "@/components/mutation-form";
-import { requireAccount } from "@/server/auth";
-import { database } from "@/server/db";
-import { referenceData } from "@/server/catalog";
+import { PageHeading } from "@/components/common/page-heading";
+import { MutationForm } from "@/components/admin/mutation-form";
+import { requireAccount } from "@/server/auth/service";
+import { database } from "@/server/core/db";
+import { referenceData } from "@/server/catalog/queries";
 import { validUuid } from "@/lib/auth-input";
 import { cairoDate } from "@/lib/time";
-import { RecoveryIssue } from "@/components/recovery-issue";
+import { RecoveryIssue } from "@/components/admin/recovery-issue";
 export const metadata = { title: "حساب الطالب" };
 export default async function StudentAdmin({
   params,

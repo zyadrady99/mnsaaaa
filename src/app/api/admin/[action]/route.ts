@@ -1,16 +1,19 @@
 import { NextResponse } from "next/server";
-import { requestToken } from "@/server/auth";
-import { catalogActions, catalogCommand } from "@/server/admin-catalog";
-import { requestBody, errorResponse, privateHeaders } from "@/server/http";
-import { denied } from "@/server/errors";
-import { codeActions, adminCodeCommand } from "@/server/codes";
-import { studentActions, studentAdminCommand } from "@/server/admin-students";
-import { recoveryActions, recoveryAdminCommand } from "@/server/recovery";
-import { deleteActions, deleteCommand } from "@/server/admin-delete";
+import { requestToken } from "@/server/auth/service";
+import { catalogActions, catalogCommand } from "@/server/catalog/admin";
+import { requestBody, errorResponse, privateHeaders } from "@/server/core/http";
+import { denied } from "@/server/core/errors";
+import { codeActions, adminCodeCommand } from "@/server/enrollments/codes";
+import {
+  studentActions,
+  studentAdminCommand,
+} from "@/server/auth/admin-students";
+import { recoveryActions, recoveryAdminCommand } from "@/server/auth/recovery";
+import { deleteActions, deleteCommand } from "@/server/catalog/deletion";
 import {
   assessmentActions,
   assessmentCommand,
-} from "@/server/admin-assessments";
+} from "@/server/assessments/admin";
 export const runtime = "nodejs";
 export async function POST(
   request: Request,

@@ -1,0 +1,1613 @@
+/* Approved student design. The administration workspace keeps its own tokens. */
+body:not(:has(.admin-workspace)) {
+  --page: #f6f8f3;
+  --surface: #ffffff;
+  --surface-muted: #edf3eb;
+  --ink: #152b32;
+  --secondary: #51646b;
+  --muted: #51646b;
+  --border: #d9e4de;
+  --control-border: #708f83;
+  --brand: #126e63;
+  --brand-hover: #0d574f;
+  --brand-active: #083d37;
+  --on-brand: #ffffff;
+  --brand-soft: #e2f3e8;
+  --brand-pale: #edf3eb;
+  --brand-soft-text: #0d574f;
+  --soft-border: #b5ceb8;
+  --accent-soft: #ffead8;
+  --accent-ink: #7a3d1b;
+  --hero-bg: #e7f0df;
+  --hero-border: #b5ceb8;
+  --card-shadow: 0 6px 24px rgb(20 57 44 / 5%);
+  --student-accent: #f2b388;
+  --student-art-line: #b5ceb8;
+  --student-focus: #126e63;
+  --student-shadow-floating: 0 14px 40px rgb(20 57 44 / 9%);
+  --student-motion: 220ms;
+  --student-ease: cubic-bezier(0.2, 0.65, 0.3, 1);
+}
+
+:root[data-theme="dark"] body:not(:has(.admin-workspace)) {
+  --page: #0d1b21;
+  --surface: #14282f;
+  --surface-muted: #1a3236;
+  --ink: #ecf3ef;
+  --secondary: #b1c5c7;
+  --muted: #b1c5c7;
+  --border: #385057;
+  --control-border: #829f9f;
+  --brand: #64d8b6;
+  --brand-hover: #88e9c9;
+  --brand-active: #48c39f;
+  --on-brand: #0d2823;
+  --brand-soft: #22463d;
+  --brand-pale: #1a3236;
+  --brand-soft-text: #b2f1d3;
+  --soft-border: #3a6958;
+  --accent-soft: #472f29;
+  --accent-ink: #ffd4b4;
+  --hero-bg: #163934;
+  --hero-border: #3a6958;
+  --card-shadow: 0 6px 24px rgb(0 0 0 / 12%);
+  --student-accent: #d58a54;
+  --student-art-line: #3a6958;
+  --student-focus: #71e0ba;
+  --student-shadow-floating: 0 14px 40px rgb(0 0 0 / 24%);
+}
+
+/* Public shell: native links and the existing persistent theme controls. */
+:where(body:not(:has(.admin-workspace))) .container {
+  width: min(1180px, calc(100% - 72px));
+}
+
+:where(body:not(:has(.admin-workspace))) .site-header {
+  background: var(--page);
+  border-bottom: 0;
+}
+
+:where(body:not(:has(.admin-workspace))) .header-inner {
+  min-height: 102px;
+  gap: 20px;
+}
+
+:where(body:not(:has(.admin-workspace))) .brand {
+  flex-shrink: 0;
+  font-size: 25px;
+  font-weight: 900;
+}
+
+:where(body:not(:has(.admin-workspace))) .brand-mark {
+  width: 46px;
+  height: 46px;
+  border-radius: 15px 15px 6px 15px;
+}
+
+:where(body:not(:has(.admin-workspace))) .brand-caption {
+  font-weight: 600;
+  color: var(--muted);
+}
+
+:where(body:not(:has(.admin-workspace))) .desktop-nav {
+  gap: 24px;
+}
+
+:where(body:not(:has(.admin-workspace))) .desktop-nav .nav-link {
+  position: relative;
+  min-height: 44px;
+  padding: 4px 0;
+  border-radius: 0;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  background: transparent;
+}
+
+:where(body:not(:has(.admin-workspace))) .desktop-nav .nav-link svg {
+  display: none;
+}
+
+:where(body:not(:has(.admin-workspace))) .desktop-nav .nav-link.active {
+  color: var(--brand);
+}
+
+:where(body:not(:has(.admin-workspace))) .desktop-nav .nav-link:hover {
+  color: var(--brand-hover);
+}
+
+:where(body:not(:has(.admin-workspace))) .desktop-nav .nav-link.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  inset-inline-start: calc(50% - 9px);
+  width: 18px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--brand);
+}
+
+:where(body:not(:has(.admin-workspace))) .header-tools,
+:where(body:not(:has(.admin-workspace))) .header-actions {
+  gap: 12px;
+}
+
+:where(body:not(:has(.admin-workspace))) .header-tools .theme-toggle {
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  flex-shrink: 0;
+  padding: 0;
+  border-radius: 12px;
+  border-color: var(--control-border);
+}
+
+:where(body:not(:has(.admin-workspace))) .header-tools .theme-toggle-label {
+  display: none;
+}
+
+:where(body:not(:has(.admin-workspace))) .header-actions .button {
+  min-height: 46px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+:where(body:not(:has(.admin-workspace))) .header-actions .login-link {
+  min-height: 44px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+:where(body:not(:has(.admin-workspace))) .site-footer {
+  padding-block: 32px;
+}
+
+:where(body:not(:has(.admin-workspace))) .site-footer > span {
+  font-size: 20px;
+  font-weight: 900;
+}
+
+:where(body:not(:has(.admin-workspace))) .main-content:has(.student-refresh) {
+  padding-top: 8px;
+}
+
+/* Home illustration and introduction. No decorative motion runs continuously. */
+.student-refresh .hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 42px;
+  align-items: center;
+  padding-block: 26px 56px;
+}
+
+.student-refresh .hero-copy {
+  padding-block: 12px;
+}
+
+.student-refresh .hero .eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-block-end: 16px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.student-refresh .eyebrow-line {
+  width: 28px;
+  height: 3px;
+  flex-shrink: 0;
+  border-radius: 2px;
+  background: var(--student-accent);
+}
+
+.student-refresh .hero h1 {
+  margin: 0;
+  font-size: clamp(42px, 4.5vw, 62px);
+  font-weight: 900;
+  line-height: 1.42;
+}
+
+.student-refresh .hero-emphasis {
+  position: relative;
+  display: inline-block;
+  color: var(--brand);
+}
+
+.student-refresh .hero-emphasis::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset-inline: 1%;
+  bottom: 7px;
+  height: 9px;
+  border-radius: 65% 30% 45% 20%;
+  background: var(--student-accent);
+  opacity: 0.55;
+  transform: rotate(-1deg);
+}
+
+.student-refresh .hero-description {
+  max-width: 420px;
+  margin-block: 24px;
+  font-size: 17px;
+  line-height: 1.95;
+  color: var(--muted);
+}
+
+.student-refresh .button {
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.6;
+}
+
+.student-refresh .hero-cta {
+  min-height: 56px;
+  font-size: 16px;
+}
+
+.student-refresh .hero-grade-picker {
+  margin-block-start: 26px;
+}
+
+.student-refresh .grade-picker-label {
+  display: block;
+  margin-block-end: 10px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.student-refresh .hero-grade-picker > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.student-refresh .hero-grade-picker :is(a, button) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 50px;
+  padding: 8px 12px;
+  border: 1px solid var(--control-border);
+  border-radius: 12px;
+  background: var(--surface);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.student-refresh .hero-grade-picker :is(a, button) > span {
+  display: grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: var(--surface-muted);
+  color: var(--brand);
+  font-size: 16px;
+}
+
+.student-refresh .hero-grade-picker :is(a, button):hover {
+  border-color: var(--brand);
+}
+
+.student-refresh
+  .hero-grade-picker
+  :is([data-selected="true"], [aria-pressed="true"]) {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+  color: var(--brand-soft-text);
+}
+
+.student-refresh .hero-visual {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  min-height: 432px;
+  margin-inline: 20px;
+  border-radius: 44px 122px 44px 44px;
+  background: var(--hero-bg);
+}
+
+.student-refresh .study-illustration {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 38px 14px;
+}
+
+.student-refresh .study-illustration img {
+  width: 100%;
+}
+
+.student-refresh .visual-orbit {
+  position: absolute;
+  z-index: 0;
+  width: 230px;
+  height: 230px;
+  border: 1px dashed var(--student-art-line);
+  border-radius: 50%;
+}
+
+.student-refresh .orbit-one {
+  inset-inline-start: 12%;
+  top: 9%;
+}
+
+.student-refresh .orbit-two {
+  width: 135px;
+  height: 135px;
+  inset-inline-end: 5%;
+  bottom: 9%;
+}
+
+.student-refresh .visual-dot {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--student-accent);
+}
+
+.student-refresh .dot-one {
+  inset-inline-end: 9%;
+  top: 13%;
+}
+
+.student-refresh .dot-two {
+  inset-inline-start: 12%;
+  bottom: 12%;
+  width: 8px;
+  height: 8px;
+  background: var(--brand);
+}
+
+.student-refresh .learning-note {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: var(--student-shadow-floating);
+}
+
+.student-refresh .learning-note strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.student-refresh .learning-note small {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.student-refresh .note-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--brand-soft);
+  color: var(--brand-soft-text);
+}
+
+.student-refresh .note-understand {
+  top: 34px;
+  inset-inline-start: -20px;
+  transform: rotate(2deg);
+}
+
+.student-refresh .note-practice {
+  bottom: 66px;
+  inset-inline-end: -14px;
+  transform: rotate(-2deg);
+}
+
+.student-refresh .note-practice .note-icon {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+
+.student-refresh .small-note {
+  position: absolute;
+  bottom: 20px;
+  inset-inline-start: 28px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--brand-soft-text);
+}
+
+/* Signed-in students see their real enrollment and lesson completion. */
+.student-refresh.student-view .hero {
+  padding-block-end: 36px;
+}
+
+.student-refresh.student-view .hero-visual {
+  min-height: 360px;
+}
+
+.student-refresh .continue-section {
+  margin-block-end: 48px;
+  scroll-margin-block-start: 24px;
+}
+
+.student-refresh .continue-panel {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background: var(--surface);
+  box-shadow: var(--card-shadow);
+}
+
+.student-refresh .continue-art {
+  overflow: hidden;
+  aspect-ratio: 1;
+  border-radius: 20px;
+}
+
+.student-refresh .continue-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.student-refresh .continue-content h2 {
+  font-size: 24px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.student-refresh .continue-byline {
+  margin-block: 6px 12px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.student-refresh .continue-byline span {
+  margin-inline: 8px;
+}
+
+.student-refresh .progress-label {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-block-end: 8px;
+  font-size: 12px;
+}
+
+.student-refresh .progress-label strong {
+  font-weight: 800;
+}
+
+.student-refresh .continue-content progress {
+  display: block;
+  width: 100%;
+  height: 8px;
+  margin: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 8px;
+  background: var(--surface-muted);
+}
+
+.student-refresh .continue-content progress::-webkit-progress-bar {
+  background: var(--surface-muted);
+}
+
+.student-refresh .continue-content progress::-webkit-progress-value {
+  border-radius: 8px;
+  background: var(--brand);
+}
+
+.student-refresh .continue-content progress::-moz-progress-bar {
+  background: var(--brand);
+}
+
+.student-refresh .continue-expiry {
+  margin-block-start: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.student-refresh .continue-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.student-refresh .continue-empty {
+  grid-template-columns: 80px minmax(0, 1fr) auto;
+}
+
+.student-refresh .continue-empty-icon {
+  display: grid;
+  place-items: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  color: var(--brand-soft-text);
+  background: var(--brand-soft);
+}
+
+/* Search and choices are native forms; checked/focus styles work without JS. */
+.student-refresh .section-heading {
+  align-items: flex-end;
+  gap: 24px;
+  margin-block-end: 26px;
+}
+
+.student-refresh .section-kicker {
+  margin-block-end: 6px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--brand);
+}
+
+.student-refresh .section-heading h2 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 800;
+}
+
+.student-refresh .section-description {
+  margin-block-start: 8px;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.student-refresh .text-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding-block: 8px;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--brand);
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+
+.student-refresh .discovery-section {
+  scroll-margin-block-start: 24px;
+}
+
+.student-refresh .explorer,
+:where(body:not(:has(.admin-workspace))) .catalog-filter-panel {
+  padding: 24px 28px;
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background: var(--surface);
+  box-shadow: var(--card-shadow);
+}
+
+.student-refresh .search-label {
+  display: block;
+  margin-block-end: 8px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.student-refresh .search-field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 5px 6px 5px 18px;
+  border: 1px solid var(--control-border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.student-refresh .search-field > svg {
+  margin-inline-start: 10px;
+  color: var(--muted);
+}
+
+.student-refresh .search-field input {
+  width: 100%;
+  min-width: 0;
+  min-height: 46px;
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 16px;
+}
+
+.student-refresh .search-field input::placeholder {
+  opacity: 1;
+  color: var(--muted);
+}
+
+.student-refresh .search-field:focus-within {
+  outline: 3px solid var(--student-focus);
+  outline-offset: 4px;
+}
+
+.student-refresh .search-field input:focus-visible,
+.student-refresh .search-field:has(.search-button:focus-visible) {
+  outline: 0;
+}
+
+.student-refresh .search-button {
+  min-height: 46px;
+  flex-shrink: 0;
+}
+
+.student-refresh .filters {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr);
+  gap: 30px;
+  margin-block-start: 20px;
+}
+
+.student-refresh .filter-group,
+:where(body:not(:has(.admin-workspace))) .catalog-choice-group {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.student-refresh .filter-group legend,
+:where(body:not(:has(.admin-workspace))) .catalog-choice-group legend {
+  margin-block-end: 10px;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.student-refresh .chip-list,
+:where(body:not(:has(.admin-workspace))) .catalog-choice-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.student-refresh .filter-chip,
+:where(body:not(:has(.admin-workspace))) .catalog-choice {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--control-border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.7;
+  cursor: pointer;
+}
+
+.student-refresh .filter-chip:hover,
+:where(body:not(:has(.admin-workspace))) .catalog-choice:hover {
+  border-color: var(--brand);
+}
+
+.student-refresh .filter-chip:has(input:checked),
+:where(body:not(:has(.admin-workspace))) .catalog-choice:has(input:checked) {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+  color: var(--brand-soft-text);
+}
+
+.student-refresh .filter-chip:has(input:focus-visible),
+:where(body:not(:has(.admin-workspace)))
+  .catalog-choice:has(input:focus-visible) {
+  outline: 3px solid var(--student-focus);
+  outline-offset: 4px;
+}
+
+.student-refresh .filter-chip input:focus-visible,
+:where(body:not(:has(.admin-workspace))) .catalog-choice input:focus-visible {
+  outline: 0;
+}
+
+.student-refresh .filter-check,
+:where(body:not(:has(.admin-workspace))) .catalog-choice-check {
+  display: none;
+}
+
+.student-refresh .filter-chip:has(input:checked) .filter-check,
+:where(body:not(:has(.admin-workspace)))
+  .catalog-choice:has(input:checked)
+  .catalog-choice-check {
+  display: block;
+}
+
+.student-refresh .results-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  min-height: 74px;
+  padding-block: 12px;
+  font-size: 14px;
+}
+
+.student-refresh .results-bar > p {
+  font-weight: 800;
+}
+
+.student-refresh .results-tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.student-refresh .teachers-section {
+  margin-block: 64px;
+}
+
+:where(body:not(:has(.admin-workspace))) .catalog-filter-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 24px;
+}
+
+:where(body:not(:has(.admin-workspace)))
+  .catalog-filter-panel
+  .catalog-search-field {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+:where(body:not(:has(.admin-workspace))) .catalog-filter-panel .field label {
+  font-weight: 800;
+}
+
+:where(body:not(:has(.admin-workspace))) .catalog-filter-panel .filter-submit,
+:where(body:not(:has(.admin-workspace))) .catalog-filter-panel .filter-clear {
+  align-self: end;
+  min-height: 48px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+:where(body:not(:has(.admin-workspace))) .catalog-filter-panel .filter-clear {
+  justify-self: start;
+  grid-column: 1 / -1;
+}
+
+/* Shared real-data cards look the same on home, catalog and teacher profiles. */
+:where(body:not(:has(.admin-workspace))) .course-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+:where(body:not(:has(.admin-workspace))) .teacher-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+
+:where(body:not(:has(.admin-workspace)))
+  :is(.course-card, .teacher-card).card-link {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: var(--card-shadow);
+  transition:
+    transform var(--student-motion) var(--student-ease),
+    border-color var(--student-motion) var(--student-ease);
+}
+
+:where(body:not(:has(.admin-workspace)))
+  :is(.course-card, .teacher-card).card-link:focus-visible {
+  outline: 3px solid var(--student-focus);
+  outline-offset: 4px;
+}
+
+:where(body:not(:has(.admin-workspace))) .course-card {
+  overflow: visible;
+}
+
+:where(body:not(:has(.admin-workspace))) .course-cover {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 19px 19px 0 0;
+}
+
+:where(body:not(:has(.admin-workspace))) .cover-badge {
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+:where(body:not(:has(.admin-workspace))) .course-card-body {
+  padding: 20px;
+}
+
+:where(body:not(:has(.admin-workspace))) .course-card-body .eyebrow {
+  margin-block-end: 6px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+:where(body:not(:has(.admin-workspace))) .course-card-body h3 {
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+:where(body:not(:has(.admin-workspace))) .course-subtitle {
+  display: -webkit-box;
+  min-height: 50px;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+}
+
+:where(body:not(:has(.admin-workspace))) .teacher-byline {
+  margin-block: 16px 20px;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+:where(body:not(:has(.admin-workspace))) .teacher-byline img,
+:where(body:not(:has(.admin-workspace)))
+  .teacher-byline
+  .catalog-image-placeholder {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+}
+
+:where(body:not(:has(.admin-workspace))) .course-card .card-footer {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  margin-block-start: auto;
+  padding-block-start: 16px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+:where(body:not(:has(.admin-workspace))) .course-card .card-action {
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--brand);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+:where(body:not(:has(.admin-workspace))) .course-card:hover .card-action {
+  background: transparent;
+}
+
+:where(body:not(:has(.admin-workspace))) .teacher-card {
+  overflow: hidden;
+}
+
+:where(body:not(:has(.admin-workspace))) .teacher-portrait {
+  aspect-ratio: 5 / 4;
+  overflow: hidden;
+}
+
+:where(body:not(:has(.admin-workspace))) .teacher-portrait img {
+  object-position: center 25%;
+}
+
+:where(body:not(:has(.admin-workspace))) .teacher-card-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  padding: 18px;
+}
+
+:where(body:not(:has(.admin-workspace))) .teacher-card-body h3 {
+  font-size: 18px;
+  font-weight: 800;
+  text-wrap: pretty;
+}
+
+:where(body:not(:has(.admin-workspace))) .teacher-subject {
+  margin-block: 4px 8px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--brand);
+}
+
+:where(body:not(:has(.admin-workspace))) .teacher-grades {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+:where(body:not(:has(.admin-workspace))) .teacher-description {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  margin-block: 8px 12px;
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+:where(body:not(:has(.admin-workspace))) .teacher-course-count {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-block-end: 16px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+:where(body:not(:has(.admin-workspace))) .teacher-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  margin-block-start: auto;
+  padding: 8px 10px;
+  border: 1px solid var(--control-border);
+  border-radius: 12px;
+  background: var(--surface);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+:where(body:not(:has(.admin-workspace))) .teacher-button svg {
+  color: var(--brand);
+}
+
+/* The student's library uses the same covers and spacing with actual progress. */
+:where(body:not(:has(.admin-workspace))) .library-course-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin-block-start: 24px;
+}
+
+:where(body:not(:has(.admin-workspace))) .workspace-panel.library-course-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0;
+  border-radius: 20px;
+  box-shadow: var(--card-shadow);
+}
+
+:where(body:not(:has(.admin-workspace))) .library-course-cover {
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 19px 19px 0 0;
+  background: var(--surface-muted);
+}
+
+:where(body:not(:has(.admin-workspace))) .library-course-cover:focus-visible {
+  outline: 3px solid var(--student-focus);
+  outline-offset: -4px;
+}
+
+:where(body:not(:has(.admin-workspace))) .library-course-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+:where(body:not(:has(.admin-workspace))) .library-course-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 14px;
+  padding: 24px;
+}
+
+:where(body:not(:has(.admin-workspace))) .library-course-body .admin-list-row {
+  align-items: start;
+  gap: 8px 12px;
+}
+
+:where(body:not(:has(.admin-workspace)))
+  .library-course-body
+  .admin-list-row
+  > div {
+  min-width: 0;
+}
+
+:where(body:not(:has(.admin-workspace))) .library-course-body h3 {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+:where(body:not(:has(.admin-workspace))) .library-course-body .teacher-byline {
+  margin-block: 6px 0;
+  font-size: 15px;
+}
+
+:where(body:not(:has(.admin-workspace))) .library-course-body > .muted {
+  font-size: 14px;
+}
+
+:where(body:not(:has(.admin-workspace))) .library-progress-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+:where(body:not(:has(.admin-workspace))) .library-progress-label strong {
+  font-weight: 800;
+  color: var(--brand);
+}
+
+:where(body:not(:has(.admin-workspace))) .library-course-body progress {
+  display: block;
+  width: 100%;
+  height: 8px;
+  overflow: hidden;
+  margin: 0;
+  border: 0;
+  border-radius: 8px;
+  background: var(--surface-muted);
+}
+
+:where(body:not(:has(.admin-workspace)))
+  .library-course-body
+  progress::-webkit-progress-bar {
+  background: var(--surface-muted);
+}
+
+:where(body:not(:has(.admin-workspace)))
+  .library-course-body
+  progress::-webkit-progress-value {
+  border-radius: 8px;
+  background: var(--brand);
+}
+
+:where(body:not(:has(.admin-workspace)))
+  .library-course-body
+  progress::-moz-progress-bar {
+  background: var(--brand);
+}
+
+:where(body:not(:has(.admin-workspace))) .library-course-body > .button {
+  width: 100%;
+  margin-block-start: auto;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.student-refresh .empty-state {
+  padding: 48px 24px;
+  border: 1px dashed var(--control-border);
+  border-radius: 28px;
+  background: var(--surface);
+}
+
+.student-refresh .empty-state h3 {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.student-refresh .empty-state p {
+  margin-block: 8px 20px;
+}
+
+.student-refresh .empty-icon {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  margin: 0 auto 16px;
+  border-radius: 20px;
+  background: var(--brand-soft);
+  color: var(--brand-soft-text);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :where(body:not(:has(.admin-workspace)))
+    :is(.course-card, .teacher-card).card-link:hover {
+    border-color: var(--control-border);
+    transform: translateY(-4px);
+  }
+
+  :where(body:not(:has(.admin-workspace))) .teacher-card:hover .teacher-button {
+    border-color: var(--brand);
+    color: var(--brand);
+    background: var(--brand-pale);
+  }
+}
+
+@media (max-width: 1100px) {
+  :where(body:not(:has(.admin-workspace))) .desktop-nav {
+    gap: 16px;
+  }
+
+  :where(body:not(:has(.admin-workspace))) .header-inner,
+  :where(body:not(:has(.admin-workspace))) .header-tools,
+  :where(body:not(:has(.admin-workspace))) .header-actions {
+    gap: 8px;
+  }
+
+  .student-refresh .filters {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 1000px) {
+  :where(body:not(:has(.admin-workspace))) .desktop-nav {
+    display: none;
+  }
+
+  :where(body:not(:has(.admin-workspace))) .bottom-nav {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 20;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4px;
+    padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: var(--nav-shadow);
+  }
+
+  :where(body:not(:has(.admin-workspace))) .bottom-nav .nav-link {
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    min-height: 56px;
+    max-width: none;
+    padding: 6px 4px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  :where(body:not(:has(.admin-workspace))) .site-footer {
+    margin-bottom: calc(88px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 980px) {
+  :where(body:not(:has(.admin-workspace))) .container {
+    width: calc(100% - 48px);
+  }
+
+  .student-refresh .hero {
+    gap: 24px;
+  }
+
+  .student-refresh .hero h1 {
+    font-size: 44px;
+  }
+
+  .student-refresh .hero-visual {
+    min-height: 350px;
+    margin-inline: 10px;
+  }
+
+  .student-refresh .learning-note {
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .student-refresh .learning-note strong {
+    font-size: 13px;
+  }
+
+  .student-refresh .learning-note small {
+    font-size: 11px;
+  }
+
+  .student-refresh .continue-panel {
+    grid-template-columns: 120px minmax(0, 1fr);
+  }
+
+  .student-refresh .continue-empty {
+    grid-template-columns: 80px minmax(0, 1fr);
+  }
+
+  .student-refresh .continue-actions {
+    grid-column: 2;
+    align-items: start;
+  }
+
+  :where(body:not(:has(.admin-workspace))) .course-grid,
+  :where(body:not(:has(.admin-workspace))) .teacher-grid,
+  :where(body:not(:has(.admin-workspace))) .library-course-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  :where(body:not(:has(.admin-workspace))) .catalog-filter-panel {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  :where(body:not(:has(.admin-workspace)))
+    .catalog-filter-panel
+    .filter-submit {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 680px) {
+  :where(body:not(:has(.admin-workspace))) .container {
+    width: calc(100% - 36px);
+  }
+
+  :where(body:not(:has(.admin-workspace))) .header-inner {
+    min-height: 88px;
+    gap: 8px;
+    flex-wrap: nowrap;
+    padding-block: 0;
+  }
+
+  :where(body:not(:has(.admin-workspace))) .brand {
+    gap: 8px;
+    font-size: 23px;
+  }
+
+  :where(body:not(:has(.admin-workspace))) .brand-mark {
+    width: 41px;
+    height: 41px;
+  }
+
+  :where(body:not(:has(.admin-workspace))) .brand-caption {
+    font-size: 10px;
+  }
+
+  :where(body:not(:has(.admin-workspace))) .header-tools,
+  :where(body:not(:has(.admin-workspace))) .header-actions {
+    gap: 6px;
+  }
+
+  :where(body:not(:has(.admin-workspace))) .header-tools {
+    flex: 0 0 auto;
+  }
+
+  :where(body:not(:has(.admin-workspace))) .header-actions .button {
+    padding: 8px 10px;
+    min-height: 44px;
+    gap: 5px;
+    font-size: 12px;
+  }
+
+  :where(body:not(:has(.admin-workspace))) .header-actions .button svg {
+    display: block;
+    width: 14px;
+    height: 14px;
+  }
+
+  :where(body:not(:has(.admin-workspace))) .header-actions .login-link {
+    padding: 6px;
+    font-size: 13px;
+  }
+
+  .student-refresh .hero {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    padding-block: 18px 40px;
+  }
+
+  .student-refresh .hero-copy {
+    padding: 0;
+  }
+
+  .student-refresh .hero .eyebrow {
+    margin-block-end: 12px;
+    font-size: 12px;
+  }
+
+  .student-refresh .hero-description {
+    margin-block: 18px 22px;
+    font-size: 16px;
+  }
+
+  .student-refresh .hero-grade-picker > div {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .student-refresh .hero-grade-picker :is(a, button) {
+    justify-content: center;
+    padding: 10px 5px;
+    gap: 5px;
+    font-size: 12px;
+  }
+
+  .student-refresh .hero-grade-picker :is(a, button) > span {
+    width: 21px;
+    height: 21px;
+    font-size: 14px;
+  }
+
+  .student-refresh .hero-visual,
+  .student-refresh.student-view .hero-visual {
+    width: calc(100% - 16px);
+    max-width: 420px;
+    min-height: 248px;
+    margin-inline: auto;
+    border-radius: 32px 90px 32px 32px;
+  }
+
+  .student-refresh .study-illustration {
+    width: 80%;
+    padding: 15px 18px 22px;
+  }
+
+  .student-refresh .learning-note {
+    padding: 8px 10px;
+    border-radius: 14px;
+  }
+
+  .student-refresh .learning-note strong {
+    font-size: 12px;
+  }
+
+  .student-refresh .learning-note small {
+    display: none;
+  }
+
+  .student-refresh .note-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+  }
+
+  .student-refresh .note-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .student-refresh .note-understand {
+    top: 18px;
+    inset-inline-start: -6px;
+  }
+
+  .student-refresh .note-practice {
+    bottom: 40px;
+    inset-inline-end: -6px;
+  }
+
+  .student-refresh .visual-orbit {
+    width: 160px;
+    height: 160px;
+  }
+
+  .student-refresh .orbit-two {
+    width: 100px;
+    height: 100px;
+  }
+
+  .student-refresh .small-note {
+    inset-inline-start: 16px;
+    bottom: 10px;
+    font-size: 10px;
+  }
+
+  .student-refresh .section-heading {
+    align-items: start;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-block-end: 20px;
+  }
+
+  .student-refresh .section-heading h2 {
+    font-size: 25px;
+  }
+
+  .student-refresh .section-description {
+    font-size: 14px;
+  }
+
+  .student-refresh .explorer,
+  :where(body:not(:has(.admin-workspace))) .catalog-filter-panel {
+    padding: 20px 16px;
+    border-radius: 20px;
+  }
+
+  .student-refresh .search-field {
+    gap: 6px;
+    padding-inline: 5px 8px;
+  }
+
+  .student-refresh .search-field > svg {
+    margin-inline-start: 4px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .student-refresh .search-field input {
+    font-size: 16px;
+  }
+
+  .student-refresh .search-button {
+    min-width: 58px;
+    padding-inline: 10px;
+    gap: 5px;
+    font-size: 13px;
+  }
+
+  .student-refresh .search-button svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .student-refresh .filters {
+    gap: 20px;
+  }
+
+  .student-refresh .results-bar {
+    align-items: start;
+    font-size: 13px;
+  }
+
+  .student-refresh .results-bar .text-link {
+    font-size: 13px;
+  }
+
+  .student-refresh .teachers-section {
+    margin-block: 48px;
+  }
+
+  .student-refresh .continue-panel,
+  .student-refresh .continue-empty {
+    grid-template-columns: 76px minmax(0, 1fr);
+    gap: 16px;
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .student-refresh .continue-art,
+  .student-refresh .continue-empty-icon {
+    width: 76px;
+    height: 76px;
+    border-radius: 14px;
+    align-self: start;
+  }
+
+  .student-refresh .continue-content h2 {
+    font-size: 20px;
+  }
+
+  .student-refresh .continue-byline {
+    font-size: 12px;
+  }
+
+  .student-refresh .continue-actions {
+    grid-column: 1 / -1;
+    align-items: stretch;
+  }
+
+  :where(body:not(:has(.admin-workspace))) .course-grid,
+  :where(body:not(:has(.admin-workspace))) .teacher-grid,
+  :where(body:not(:has(.admin-workspace))) .library-course-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  :where(body:not(:has(.admin-workspace))) .teacher-card.card-link {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
+  }
+
+  :where(body:not(:has(.admin-workspace))) .teacher-portrait {
+    aspect-ratio: auto;
+    height: 100%;
+  }
+
+  :where(body:not(:has(.admin-workspace))) .teacher-card-body {
+    padding: 14px;
+  }
+
+  :where(body:not(:has(.admin-workspace))) .teacher-description {
+    margin-block: 6px 10px;
+  }
+
+  :where(body:not(:has(.admin-workspace))) .teacher-course-count {
+    margin-block-end: 10px;
+  }
+
+  :where(body:not(:has(.admin-workspace))) .teacher-button {
+    margin-block-start: 6px;
+  }
+
+  :where(body:not(:has(.admin-workspace))) .library-course-body {
+    padding: 20px;
+  }
+
+  .student-refresh .empty-state {
+    padding: 32px 20px;
+    border-radius: 20px;
+  }
+}
+
+@media (max-width: 374px) {
+  :where(body:not(:has(.admin-workspace))) .header-inner {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding-block: 12px;
+  }
+
+  :where(body:not(:has(.admin-workspace))) .header-tools {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .student-refresh .hero h1 {
+    font-size: 38px;
+  }
+
+  .student-refresh .hero-grade-picker > div {
+    grid-template-columns: 1fr;
+  }
+
+  .student-refresh .hero-grade-picker :is(a, button) {
+    justify-content: start;
+    padding-inline: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(body:not(:has(.admin-workspace)))
+    :is(.course-card, .teacher-card).card-link {
+    transition: none;
+  }
+
+  :where(body:not(:has(.admin-workspace)))
+    :is(.course-card, .teacher-card).card-link:hover,
+  .student-refresh .learning-note {
+    transform: none;
+  }
+}

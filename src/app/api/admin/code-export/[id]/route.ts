@@ -1,6 +1,6 @@
-import { exportCodes } from "@/server/codes";
-import { requestToken } from "@/server/auth";
-import { errorResponse, privateHeaders } from "@/server/http";
+import { exportCodes } from "@/server/enrollments/codes";
+import { requestToken } from "@/server/auth/service";
+import { errorResponse, privateHeaders } from "@/server/core/http";
 export const runtime = "nodejs";
 export async function GET(
   _request: Request,

@@ -1,8 +1,8 @@
 import Link from "next/link";
 import Form from "next/form";
-import { PageHeading } from "@/components/page-heading";
-import { requireAccount } from "@/server/auth";
-import { database } from "@/server/db";
+import { PageHeading } from "@/components/common/page-heading";
+import { requireAccount } from "@/server/auth/service";
+import { database } from "@/server/core/db";
 import { arabicNumber } from "@/lib/catalog";
 export const metadata = { title: "إدارة الطلاب" };
 export default async function StudentsAdmin({

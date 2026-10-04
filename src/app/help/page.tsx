@@ -5,7 +5,7 @@ import {
   IdentificationCard,
   Ticket,
 } from "@phosphor-icons/react/dist/ssr";
-import { Breadcrumbs, PageHeading } from "@/components/page-heading";
+import { Breadcrumbs, PageHeading } from "@/components/common/page-heading";
 
 export const metadata: Metadata = { title: "المساعدة" };
 export default function Help() {

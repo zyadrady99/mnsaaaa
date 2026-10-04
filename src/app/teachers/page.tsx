@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import { TeacherCard } from "@/components/cards";
-import { CatalogFilters } from "@/components/catalog-filters";
-import { EmptyState } from "@/components/empty-state";
-import { Breadcrumbs, PageHeading } from "@/components/page-heading";
+import { TeacherCard } from "@/components/catalog/cards";
+import { CatalogFilters } from "@/components/catalog/catalog-filters";
+import { EmptyState } from "@/components/common/empty-state";
+import { Breadcrumbs, PageHeading } from "@/components/common/page-heading";
 import { arabicNumber } from "@/lib/catalog";
 import {
   publicCatalog,
   catalogQuery,
   matchingTeachers,
-} from "@/server/catalog";
+} from "@/server/catalog/queries";
 
 export const metadata: Metadata = { title: "المدرسون" };
 export default async function Teachers({

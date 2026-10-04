@@ -1,7 +1,7 @@
-import { PageHeading } from "@/components/page-heading";
-import { MutationForm } from "@/components/mutation-form";
-import { requireAccount } from "@/server/auth";
-import { database } from "@/server/db";
+import { PageHeading } from "@/components/common/page-heading";
+import { MutationForm } from "@/components/admin/mutation-form";
+import { requireAccount } from "@/server/auth/service";
+import { database } from "@/server/core/db";
 export const metadata = { title: "الصفوف والمواد" };
 export default async function SettingsAdmin() {
   await requireAccount("admin");

@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { PageHeading } from "@/components/page-heading";
-import { AttemptRunner } from "@/components/attempt-runner";
-import { readAttempt } from "@/server/assessments";
-import { requireAccount, requestToken } from "@/server/auth";
-import { AppError } from "@/server/errors";
+import { PageHeading } from "@/components/common/page-heading";
+import { AttemptRunner } from "@/components/assessments/attempt-runner";
+import { readAttempt } from "@/server/assessments/service";
+import { requireAccount, requestToken } from "@/server/auth/service";
+import { AppError } from "@/server/core/errors";
 export const metadata = { title: "حل التقييم" };
 export default async function AttemptPage({
   params,

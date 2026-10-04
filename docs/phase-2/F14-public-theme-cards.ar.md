@@ -28,4 +28,4 @@
 
 ## ملفات التنفيذ
 
-`src/app/globals.css`، `src/app/layout.tsx`، `src/app/admin/layout.tsx`، `src/components/admin-shell.tsx`، `src/components/navigation.tsx`، `src/components/cards.tsx`، `src/components/theme-provider.tsx`، `src/components/catalog-image.tsx`، `src/lib/theme.ts`، `src/app/teachers/[slug]/page.tsx`، و`src/app/courses/[slug]/page.tsx`.
+`src/app/globals.css`، `src/app/layout.tsx`، `src/app/admin/layout.tsx`، `src/components/admin/admin-shell.tsx`، `src/components/common/navigation.tsx`، `src/components/catalog/cards.tsx`، `src/components/common/theme-provider.tsx`، `src/components/catalog/catalog-image.tsx`، `src/lib/theme.ts`، `src/app/teachers/[slug]/page.tsx`، و`src/app/courses/[slug]/page.tsx`.

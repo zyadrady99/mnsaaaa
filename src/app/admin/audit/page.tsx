@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { requireAccount } from "@/server/auth";
-import { database } from "@/server/db";
-import { PageHeading } from "@/components/page-heading";
+import { requireAccount } from "@/server/auth/service";
+import { database } from "@/server/core/db";
+import { PageHeading } from "@/components/common/page-heading";
 import { cairoDate } from "@/lib/time";
 export const metadata = { title: "سجل الإجراءات" };
 const labels: Record<string, string> = {

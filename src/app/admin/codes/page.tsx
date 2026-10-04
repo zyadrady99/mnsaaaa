@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { PageHeading } from "@/components/page-heading";
-import { CodeGenerateForm } from "@/components/code-generate-form";
-import { MutationForm } from "@/components/mutation-form";
-import { requireAccount } from "@/server/auth";
-import { database } from "@/server/db";
+import { PageHeading } from "@/components/common/page-heading";
+import { CodeGenerateForm } from "@/components/admin/code-generate-form";
+import { MutationForm } from "@/components/admin/mutation-form";
+import { requireAccount } from "@/server/auth/service";
+import { database } from "@/server/core/db";
 import { cairoDate } from "@/lib/time";
 export const metadata = { title: "أكواد الاشتراك" };
 export default async function CodesAdmin() {

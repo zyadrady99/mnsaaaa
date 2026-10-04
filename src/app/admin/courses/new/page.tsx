@@ -1,6 +1,6 @@
-import { PageHeading } from "@/components/page-heading";
-import { CourseEditor } from "@/components/course-editor";
-import { requireAccount } from "@/server/auth";
+import { PageHeading } from "@/components/common/page-heading";
+import { CourseEditor } from "@/components/admin/course-editor";
+import { requireAccount } from "@/server/auth/service";
 export const metadata = { title: "إضافة كورس" };
 export default async function NewCourse() {
   await requireAccount("admin");

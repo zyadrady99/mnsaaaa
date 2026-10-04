@@ -1,8 +1,8 @@
-import { PageHeading } from "@/components/page-heading";
-import { MutationForm, type FieldSpec } from "@/components/mutation-form";
-import { requireAccount } from "@/server/auth";
-import { database } from "@/server/db";
-import { referenceData } from "@/server/catalog";
+import { PageHeading } from "@/components/common/page-heading";
+import { MutationForm, type FieldSpec } from "@/components/admin/mutation-form";
+import { requireAccount } from "@/server/auth/service";
+import { database } from "@/server/core/db";
+import { referenceData } from "@/server/catalog/queries";
 export const metadata = { title: "إدارة المدرسين" };
 export default async function TeachersAdmin() {
   await requireAccount("admin");

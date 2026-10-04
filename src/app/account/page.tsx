@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Breadcrumbs, PageHeading } from "@/components/page-heading";
-import { LogoutButton } from "@/components/logout-button";
-import { requireAccount } from "@/server/auth";
+import { Breadcrumbs, PageHeading } from "@/components/common/page-heading";
+import { LogoutButton } from "@/components/auth/logout-button";
+import { requireAccount } from "@/server/auth/service";
 import { gradeLabel, type GradeId } from "@/lib/catalog";
 export const metadata: Metadata = { title: "حسابي" };
 export default async function AccountPage() {

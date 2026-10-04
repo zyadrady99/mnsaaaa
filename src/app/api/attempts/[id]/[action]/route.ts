@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { attemptCommand } from "@/server/assessments";
-import { requestToken } from "@/server/auth";
-import { errorResponse, requestBody, privateHeaders } from "@/server/http";
-import { denied } from "@/server/errors";
+import { attemptCommand } from "@/server/assessments/service";
+import { requestToken } from "@/server/auth/service";
+import { errorResponse, requestBody, privateHeaders } from "@/server/core/http";
+import { denied } from "@/server/core/errors";
 export const runtime = "nodejs";
 export async function POST(
   request: Request,

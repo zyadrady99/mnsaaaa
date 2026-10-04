@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { PageHeading } from "@/components/page-heading";
-import { MutationForm } from "@/components/mutation-form";
-import { assessmentPreview } from "@/server/assessments";
-import { requireAccount, requestToken } from "@/server/auth";
-import { AppError } from "@/server/errors";
+import { PageHeading } from "@/components/common/page-heading";
+import { MutationForm } from "@/components/admin/mutation-form";
+import { assessmentPreview } from "@/server/assessments/service";
+import { requireAccount, requestToken } from "@/server/auth/service";
+import { AppError } from "@/server/core/errors";
 import { cairoDate } from "@/lib/time";
 export const metadata = { title: "تعليمات التقييم" };
 export default async function AssessmentPage({

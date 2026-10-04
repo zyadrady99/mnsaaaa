@@ -351,6 +351,14 @@ export function courseMinutes(course: Course) {
 export const arabicNumber = (value: number) =>
   new Intl.NumberFormat("ar-EG").format(value);
 
+export function courseCountText(count: number) {
+  return count === 1
+    ? "كورس واحد"
+    : count === 2
+      ? "كورسين"
+      : `${arabicNumber(count)} كورسات`;
+}
+
 export function normalizeSearch(value: string) {
   return value
     .trim()

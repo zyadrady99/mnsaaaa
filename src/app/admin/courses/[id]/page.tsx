@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PageHeading, Breadcrumbs } from "@/components/page-heading";
-import { CourseEditor } from "@/components/course-editor";
-import { MutationForm } from "@/components/mutation-form";
-import { requireAccount } from "@/server/auth";
-import { database } from "@/server/db";
+import { PageHeading, Breadcrumbs } from "@/components/common/page-heading";
+import { CourseEditor } from "@/components/admin/course-editor";
+import { MutationForm } from "@/components/admin/mutation-form";
+import { requireAccount } from "@/server/auth/service";
+import { database } from "@/server/core/db";
 import { validUuid } from "@/lib/auth-input";
-import { StatusRefresh } from "@/components/status-refresh";
+import { StatusRefresh } from "@/components/common/status-refresh";
 export const metadata = { title: "إدارة الكورس" };
 export default async function CourseAdmin({
   params,

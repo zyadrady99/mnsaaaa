@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { PageHeading } from "@/components/page-heading";
-import { RecoveryForm } from "@/components/recovery-form";
+import { PageHeading } from "@/components/common/page-heading";
+import { RecoveryForm } from "@/components/auth/recovery-form";
 export const metadata = {
   title: "استعادة الحساب",
   referrer: "no-referrer" as const,

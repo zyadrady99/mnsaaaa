@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
-import { CourseCard } from "@/components/cards";
-import { CatalogFilters } from "@/components/catalog-filters";
-import { EmptyState } from "@/components/empty-state";
-import { Breadcrumbs, PageHeading } from "@/components/page-heading";
-import { arabicNumber } from "@/lib/catalog";
-import { publicCatalog, catalogQuery, matchingCourses } from "@/server/catalog";
+import { CourseCard } from "@/components/catalog/cards";
+import { CatalogFilters } from "@/components/catalog/catalog-filters";
+import { EmptyState } from "@/components/common/empty-state";
+import { Breadcrumbs, PageHeading } from "@/components/common/page-heading";
+import { courseCountText } from "@/lib/catalog";
+import {
+  publicCatalog,
+  catalogQuery,
+  matchingCourses,
+} from "@/server/catalog/queries";
 
 export const metadata: Metadata = { title: "الكورسات" };
 export default async function Courses({
@@ -24,8 +28,14 @@ export default async function Courses({
       />
       <CatalogFilters action="/courses" query={query} kind="courses" />
       <p className="result-count" role="status">
-        {arabicNumber(results.length)} كورسات
-        {query.q ? ` لبحث «${query.q}»` : " متاحة للاستكشاف"}
+        {courseCountText(results.length)}
+        {query.q
+          ? ` لبحث «${query.q}»`
+          : results.length === 1
+            ? " متاح للاستكشاف"
+            : results.length === 2
+              ? " متاحين للاستكشاف"
+              : " متاحة للاستكشاف"}
       </p>
       {results.length ? (
         <section aria-labelledby="course-results-heading">

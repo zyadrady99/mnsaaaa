@@ -6,10 +6,10 @@ import {
   requestToken,
   sessionCookie,
   sessionSeconds,
-} from "@/server/auth";
-import { errorResponse, privateHeaders, requestBody } from "@/server/http";
+} from "@/server/auth/service";
+import { errorResponse, privateHeaders, requestBody } from "@/server/core/http";
 import { courseReturnTo } from "@/lib/return-to";
-import { denied } from "@/server/errors";
+import { denied } from "@/server/core/errors";
 
 export const runtime = "nodejs";
 export async function POST(

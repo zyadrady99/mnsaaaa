@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { CatalogImage } from "@/components/catalog-image";
+import { CatalogImage } from "@/components/catalog/catalog-image";
 import { notFound } from "next/navigation";
 import { BookOpen, Check } from "@phosphor-icons/react/dist/ssr";
-import { CourseCard } from "@/components/cards";
-import { Breadcrumbs } from "@/components/page-heading";
+import { CourseCard } from "@/components/catalog/cards";
+import { Breadcrumbs } from "@/components/common/page-heading";
 import { arabicNumber, gradeLabel, subjectLabel } from "@/lib/catalog";
-import { getPublicTeacher, publicCatalog } from "@/server/catalog";
+import { getPublicTeacher, publicCatalog } from "@/server/catalog/queries";
 
 type Props = { params: Promise<{ slug: string }> };
 export const dynamic = "force-dynamic";

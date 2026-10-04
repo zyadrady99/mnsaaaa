@@ -1,9 +1,13 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { learningCommand, watchCookie, watchSeconds } from "@/server/learning";
-import { requestToken } from "@/server/auth";
-import { requestBody, errorResponse, privateHeaders } from "@/server/http";
-import { denied } from "@/server/errors";
+import {
+  learningCommand,
+  watchCookie,
+  watchSeconds,
+} from "@/server/learning/service";
+import { requestToken } from "@/server/auth/service";
+import { requestBody, errorResponse, privateHeaders } from "@/server/core/http";
+import { denied } from "@/server/core/errors";
 export const runtime = "nodejs";
 const fields: Record<string, string[]> = {
   "video-open": ["lessonId", "transfer"],

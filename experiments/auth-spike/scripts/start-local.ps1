@@ -52,9 +52,17 @@ try {
     if ($authContainer.Config.Env -notcontains 'GOTRUE_EXTERNAL_PHONE_ENABLED=true') { throw 'Phone provider verification failed.' }
     if (@($authContainer.Config.Env | Where-Object { $_ -match '^GOTRUE_SMS_PROVIDER=.+' }).Count -ne 0) { throw 'An SMS provider was configured unexpectedly.' }
     if ($WithDataApi) {
-        $probeStatusRaw = & (Join-Path $experimentRoot 'node_modules\@supabase\cli-windows-x64\bin\supabase.exe') status --workdir $experimentRoot --output json --agent no 2> (Join-Path $experimentRoot '.local\probe-status.stderr.log')
+        $priorStatusErrorPreference = $ErrorActionPreference
+        try {
+            $ErrorActionPreference = 'Continue'
+            $probeStatusRaw = & (Join-Path $experimentRoot 'node_modules\@supabase\cli-windows-x64\bin\supabase.exe') status --workdir $experimentRoot --output json --agent no 2> (Join-Path $experimentRoot '.local\probe-status.stderr.log')
+            $probeStatusExitCode = $LASTEXITCODE
+        } finally {
+            $ErrorActionPreference = $priorStatusErrorPreference
+        }
+        if ($probeStatusExitCode -ne 0) { throw 'Local status failed; inspect the ignored probe-status log without printing credentials.' }
         $probeSettings = ($probeStatusRaw -join "`n") | ConvertFrom-Json -ErrorAction Stop
-        $probeResponse = Invoke-WebRequest -Uri 'http://127.0.0.1:54321/rest/v1/' -Headers @{ apikey = $probeSettings.ANON_KEY } -TimeoutSec 15
+        $probeResponse = Invoke-WebRequest -UseBasicParsing -Uri 'http://127.0.0.1:54321/rest/v1/' -Headers @{ apikey = $probeSettings.ANON_KEY } -TimeoutSec 15
         if ($probeResponse.StatusCode -ne 200) { throw 'Data API HTTP check failed.' }
         Write-Output 'Local Data API responds over the same loopback gateway; private-schema grants remain restricted.'
     }
@@ -64,11 +72,24 @@ try {
     }
     Write-Output 'Local Auth/Postgres/gateway healthy; published ports use 127.0.0.1; phone provider enabled without SMS provider.'
 } catch {
+    $originalStartError = $_
     if ($didRequestStart) {
         # A rejected verification must not leave this experiment's ports running.
-        & (Join-Path $experimentRoot 'node_modules\.bin\supabase.cmd') stop --workdir $experimentRoot --project-id dorosna-auth-spike --agent no 1> (Join-Path $experimentRoot '.local\failed-start-stop.stdout.log') 2> (Join-Path $experimentRoot '.local\failed-start-stop.stderr.log')
+        # Native stderr warnings must not interrupt cleanup or replace its cause.
+        $priorStopErrorPreference = $ErrorActionPreference
+        try {
+            $ErrorActionPreference = 'Continue'
+            & (Join-Path $experimentRoot 'node_modules\.bin\supabase.cmd') stop --workdir $experimentRoot --project-id dorosna-auth-spike --agent no 1> (Join-Path $experimentRoot '.local\failed-start-stop.stdout.log') 2> (Join-Path $experimentRoot '.local\failed-start-stop.stderr.log')
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning 'Cleanup failed; inspect the ignored failed-start-stop logs without printing credentials.' -WarningAction Continue
+            }
+        } catch {
+            Write-Warning 'Cleanup could not finish; inspect the ignored failed-start-stop logs without printing credentials.' -WarningAction Continue
+        } finally {
+            $ErrorActionPreference = $priorStopErrorPreference
+        }
     }
-    throw
+    throw $originalStartError
 } finally {
     $env:PATH = $priorProcessPath
     $env:DOROSNA_DOCKER_ADAPTER = $priorAdapterPath

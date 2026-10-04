@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PageHeading } from "@/components/page-heading";
-import { MutationForm } from "@/components/mutation-form";
-import { requireAccount } from "@/server/auth";
-import { database } from "@/server/db";
+import { PageHeading } from "@/components/common/page-heading";
+import { MutationForm } from "@/components/admin/mutation-form";
+import { requireAccount } from "@/server/auth/service";
+import { database } from "@/server/core/db";
 import { validUuid } from "@/lib/auth-input";
 import { cairoDate } from "@/lib/time";
 export const metadata = { title: "دفعة الأكواد" };

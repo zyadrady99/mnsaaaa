@@ -1,10 +1,10 @@
 import Link from "next/link";
 import Form from "next/form";
-import { PageHeading } from "@/components/page-heading";
-import { currentAccount, requestToken } from "@/server/auth";
-import { database } from "@/server/db";
-import { referenceData } from "@/server/catalog";
-import { standaloneHistory } from "@/server/assessments";
+import { PageHeading } from "@/components/common/page-heading";
+import { currentAccount, requestToken } from "@/server/auth/service";
+import { database } from "@/server/core/db";
+import { referenceData } from "@/server/catalog/queries";
+import { standaloneHistory } from "@/server/assessments/service";
 import { validUuid } from "@/lib/auth-input";
 import { arabicNumber } from "@/lib/catalog";
 import { cairoDate } from "@/lib/time";

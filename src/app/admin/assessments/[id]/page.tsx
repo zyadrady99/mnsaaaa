@@ -1,16 +1,16 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PageHeading } from "@/components/page-heading";
+import { PageHeading } from "@/components/common/page-heading";
 import {
   AssessmentEditor,
   type AssessmentDraft,
-} from "@/components/assessment-editor";
-import { MutationForm } from "@/components/mutation-form";
-import { requireAccount } from "@/server/auth";
-import { database } from "@/server/db";
+} from "@/components/admin/assessment-editor";
+import { MutationForm } from "@/components/admin/mutation-form";
+import { requireAccount } from "@/server/auth/service";
+import { database } from "@/server/core/db";
 import { validUuid } from "@/lib/auth-input";
 import { cairoInput, cairoDate } from "@/lib/time";
-import { referenceData } from "@/server/catalog";
+import { referenceData } from "@/server/catalog/queries";
 import { arabicNumber } from "@/lib/catalog";
 export const metadata = { title: "إدارة التقييم" };
 export default async function AssessmentAdmin({

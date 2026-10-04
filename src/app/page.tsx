@@ -1,156 +1,177 @@
 import Image from "next/image";
 import Link from "next/link";
-import Form from "next/form";
+import { Suspense } from "react";
 import {
   ArrowLeft,
-  ArrowUpLeft,
   BookOpen,
-  ChalkboardTeacher,
-  MagnifyingGlass,
-  Ticket,
-  Atom,
-  Flask,
-  Calculator,
-  TextAa,
+  Check,
+  PencilSimple,
 } from "@phosphor-icons/react/dist/ssr";
-import { CourseCard, TeacherCard } from "@/components/cards";
-import { publicCatalog, referenceData } from "@/server/catalog";
-const subjectIcons: Record<string, typeof BookOpen> = {
-  physics: Atom,
-  chemistry: Flask,
-  math: Calculator,
-  arabic: TextAa,
-};
+import { CourseCard, TeacherCard } from "@/components/catalog/cards";
+import { HomeContinue } from "@/components/catalog/home-continue";
+import { HomeCourseExplorer } from "@/components/catalog/home-course-explorer";
+import { HomeGradePicker } from "@/components/catalog/home-grade-picker";
+import { currentAccount } from "@/server/auth/service";
+import {
+  catalogQuery,
+  publicCatalog,
+  referenceData,
+} from "@/server/catalog/queries";
 
-export default async function Home() {
-  const [catalog, refs] = await Promise.all([publicCatalog(), referenceData()]);
-  const { courses, teachers } = catalog;
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const [catalog, refs, account, params] = await Promise.all([
+    publicCatalog(),
+    referenceData(),
+    currentAccount(),
+    searchParams,
+  ]);
+  const query = await catalogQuery(params);
+  const student = account?.role === "student";
+  const grades = refs.grades
+    .filter((grade) => grade.enabled)
+    .map((grade) => ({ id: grade.slug, label: grade.name }));
   const subjects = refs.subjects
-    .filter((s) => s.enabled)
-    .map((s) => ({ id: s.slug, label: s.name }));
+    .filter((subject) => subject.enabled)
+    .map((subject) => ({ id: subject.slug, label: subject.name }));
+  const courses = catalog.courses.map((course) => ({
+    slug: course.slug,
+    grade: course.grade,
+    subject: course.subject,
+    searchText: `${course.title} ${course.teacher?.name ?? ""} ${course.subjectName ?? ""}`,
+    card: <CourseCard course={course} />,
+  }));
+
   return (
-    <>
-      <section className="home-hero" aria-labelledby="hero-title">
+    <div className={`student-refresh${student ? " student-view" : ""}`}>
+      <section className="hero" aria-labelledby="hero-title">
         <div className="hero-copy">
-          <p className="eyebrow">بداية جديدة، خطوة أوضح</p>
+          <p className="eyebrow">
+            <span className="eyebrow-line" aria-hidden="true" />
+            {student ? "كل خطوة صغيرة بتفرق" : "ثانوي، وخطوتك على قدّك"}
+          </p>
           <h1 id="hero-title">
-            مذاكرتك،
+            {student ? "جاهز نكمّل؟" : "كل درس،"}
             <br />
-            <span>خطوة بخطوة.</span>
+            <span className="hero-emphasis">
+              {student ? "خطوة جديدة." : "خطوة لقدّام."}
+            </span>
           </h1>
           <p className="hero-description">
-            اختار مدرسك، افهم درسك، واتدرّب عليه.
-            <br className="desktop-break" /> كل اللي محتاجه للمذاكرة في مكان
-            واحد.
+            {student
+              ? "ارجع للكورس اللي بدأته، أو اكتشف حاجة جديدة."
+              : "اختار مدرسك، افهم الفكرة، واتدرّب عليها."}
+            <br />
+            {student
+              ? "مذاكرتك كلها في مكان واحد."
+              : "مذاكرتك كلها في مكان واحد، وبداية أسهل."}
           </p>
-          <Link href="/courses" className="button primary">
-            استكشف الكورسات
-            <ArrowLeft size={21} aria-hidden="true" />
+          <Link
+            href={student ? "#continue-section" : "#discover"}
+            className="button primary hero-cta"
+          >
+            {student ? "نرجع للمذاكرة" : "يلا نلاقي كورسك"}
+            <ArrowLeft size={22} aria-hidden="true" />
           </Link>
-          <div className="hero-footnote">
-            <BookOpen size={18} aria-hidden="true" />
-            للصفوف الأول والثاني والثالث الثانوي
+          {!student && grades.length > 0 && (
+            <Suspense fallback={null}>
+              <HomeGradePicker grades={grades} />
+            </Suspense>
+          )}
+        </div>
+        <div className="hero-visual">
+          <span className="visual-orbit orbit-one" aria-hidden="true" />
+          <span className="visual-orbit orbit-two" aria-hidden="true" />
+          <span className="visual-dot dot-one" aria-hidden="true" />
+          <span className="visual-dot dot-two" aria-hidden="true" />
+          <div className="study-illustration">
+            <Image
+              src="/images/study-scene.svg"
+              width={600}
+              height={430}
+              alt="مكتب مذاكرة عليه كتب وكراسة ونبتة"
+              preload
+              sizes="(max-width: 680px) 80vw, 45vw"
+            />
           </div>
-        </div>
-        <div className="hero-art">
-          <Image
-            src="/images/study-scene.svg"
-            alt="رسم لمكتب مذاكرة عليه كتب وكراسة ونبتة"
-            width={600}
-            height={430}
-            preload
-            sizes="(max-width: 767px) 90vw, 45vw"
-          />
+          <span className="learning-note note-understand">
+            <span className="note-icon">
+              <BookOpen size={22} aria-hidden="true" />
+            </span>
+            <span>
+              <strong>افهم الفكرة</strong>
+              <small>الشرح خطوة بخطوة</small>
+            </span>
+          </span>
+          <span className="learning-note note-practice">
+            <span className="note-icon">
+              <PencilSimple size={22} aria-hidden="true" />
+            </span>
+            <span>
+              <strong>جرّب بإيدك</strong>
+              <small>تدريب يثبّت اللي فهمته</small>
+            </span>
+          </span>
+          <span className="small-note">
+            <Check size={18} aria-hidden="true" />
+            وخد الخطوة اللي بعدها
+          </span>
         </div>
       </section>
-      <section className="discovery-bar" aria-label="اختار نقطة البداية">
-        <Form action="/courses" className="home-search">
-          <label className="sr-only" htmlFor="home-q">
-            ابحث عن كورس أو مدرس
-          </label>
-          <MagnifyingGlass size={23} aria-hidden="true" />
-          <input
-            id="home-q"
-            name="q"
-            type="search"
-            placeholder="بتدوّر على إيه؟ اسم كورس أو مدرس"
-            maxLength={100}
-          />
-          <button className="button secondary small" type="submit">
-            بحث
-          </button>
-        </Form>
-        <Link href="/teachers" className="quick-link">
-          <ChalkboardTeacher size={24} aria-hidden="true" />
-          <span>اختار مدرسك</span>
-          <ArrowUpLeft size={20} aria-hidden="true" />
-        </Link>
-        <Link href="/my-courses#activate" className="quick-link">
-          <Ticket size={24} aria-hidden="true" />
-          <span>معاك كود كورس؟</span>
-          <ArrowUpLeft size={20} aria-hidden="true" />
-        </Link>
-      </section>
-      <section className="page-section" aria-labelledby="subjects-title">
+
+      {student && account && <HomeContinue accountId={account.id} />}
+
+      <Suspense
+        fallback={
+          <div className="workspace-panel" aria-busy="true">
+            بنجهّز الكورسات المتاحة...
+          </div>
+        }
+      >
+        <HomeCourseExplorer
+          key={JSON.stringify(query)}
+          courses={courses}
+          grades={grades}
+          subjects={subjects}
+        />
+      </Suspense>
+
+      <section
+        className="teachers-section"
+        id="teachers"
+        aria-labelledby="teachers-title"
+      >
         <div className="section-heading">
           <div>
-            <p className="eyebrow">ابدأ بالمادة</p>
-            <h2 id="subjects-title">ناوي تذاكر إيه النهارده؟</h2>
-          </div>
-        </div>
-        <div className="subject-grid">
-          {subjects.map((subject) => {
-            const SubjectIcon = subjectIcons[subject.id] ?? BookOpen;
-            return (
-              <Link
-                key={subject.id}
-                href={`/courses?subject=${subject.id}`}
-                className={`subject-link theme-${subject.id}`}
-              >
-                <span className="subject-symbol" aria-hidden="true">
-                  <SubjectIcon size={26} aria-hidden="true" />
-                </span>
-                <span>{subject.label}</span>
-                <ArrowUpLeft size={22} aria-hidden="true" />
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-      <section className="page-section" aria-labelledby="teachers-title">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">الفهم بيبدأ مع مدرسك</p>
-            <h2 id="teachers-title">اتعرّف على المدرسين</h2>
+            <p className="section-kicker">اختار طريقتك</p>
+            <h2 id="teachers-title">مدرّس تفهم معاه.</h2>
+            <p className="section-description">
+              اعرف طريقته، وشوف الكورسات اللي بيشرحها.
+            </p>
           </div>
           <Link href="/teachers" className="text-link">
             كل المدرسين
             <ArrowLeft size={19} aria-hidden="true" />
           </Link>
         </div>
-        <div className="teacher-grid">
-          {teachers.map((teacher) => (
-            <TeacherCard key={teacher.slug} teacher={teacher} />
-          ))}
-        </div>
-      </section>
-      <section className="page-section" aria-labelledby="courses-title">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">اختار خطوتك الجاية</p>
-            <h2 id="courses-title">كورسات تقدر تبدأ بيها</h2>
+        {catalog.teachers.length > 0 ? (
+          <div className="teacher-grid">
+            {catalog.teachers.map((teacher) => (
+              <TeacherCard key={teacher.slug} teacher={teacher} />
+            ))}
           </div>
-          <Link href="/courses" className="text-link">
-            كل الكورسات
-            <ArrowLeft size={19} aria-hidden="true" />
-          </Link>
-        </div>
-        <div className="course-grid">
-          {courses.slice(0, 3).map((course) => (
-            <CourseCard key={course.slug} course={course} />
-          ))}
-        </div>
+        ) : (
+          <div className="empty-state">
+            <h3>لسه مفيش مدرسين متاحين.</h3>
+            <p className="muted">
+              لما يتضاف مدرس جديد هتلاقي صفحته وكورساته هنا.
+            </p>
+          </div>
+        )}
       </section>
-    </>
+    </div>
   );
 }

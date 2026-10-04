@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { recoverPassword } from "@/server/recovery";
-import { errorResponse, privateHeaders, requestBody } from "@/server/http";
+import { recoverPassword } from "@/server/auth/recovery";
+import { errorResponse, privateHeaders, requestBody } from "@/server/core/http";
 export const runtime = "nodejs";
 export async function POST(request: Request) {
   try {

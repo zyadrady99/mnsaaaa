@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { requestToken } from "@/server/auth";
-import { uploadImage } from "@/server/media";
-import { checkOrigin, errorResponse, privateHeaders } from "@/server/http";
+import { requestToken } from "@/server/auth/service";
+import { uploadImage } from "@/server/media/images";
+import { checkOrigin, errorResponse, privateHeaders } from "@/server/core/http";
 export const runtime = "nodejs";
 export async function POST(request: Request) {
   try {

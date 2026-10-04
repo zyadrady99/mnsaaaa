@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { CatalogImage } from "@/components/catalog-image";
+import { CatalogImage } from "@/components/catalog/catalog-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -12,7 +12,7 @@ import {
   PlayCircle,
   Ticket,
 } from "@phosphor-icons/react/dist/ssr";
-import { Breadcrumbs } from "@/components/page-heading";
+import { Breadcrumbs } from "@/components/common/page-heading";
 import {
   arabicNumber,
   courseMinutes,
@@ -20,9 +20,9 @@ import {
   lessonCount,
   subjectLabel,
 } from "@/lib/catalog";
-import { getPublishedCourse } from "@/server/catalog";
-import { currentAccount } from "@/server/auth";
-import { database } from "@/server/db";
+import { getPublishedCourse } from "@/server/catalog/queries";
+import { currentAccount } from "@/server/auth/service";
+import { database } from "@/server/core/db";
 
 type Props = { params: Promise<{ slug: string }> };
 export const dynamic = "force-dynamic";

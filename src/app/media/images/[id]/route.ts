@@ -1,4 +1,4 @@
-import { readImage } from "@/server/media";
+import { readImage } from "@/server/media/images";
 export const runtime = "nodejs";
 export async function GET(
   _request: Request,

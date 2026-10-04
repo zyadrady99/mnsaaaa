@@ -6,9 +6,9 @@ import {
   Plus,
   Ticket,
 } from "@phosphor-icons/react/dist/ssr";
-import { PageHeading } from "@/components/page-heading";
-import { requireAccount } from "@/server/auth";
-import { database } from "@/server/db";
+import { PageHeading } from "@/components/common/page-heading";
+import { requireAccount } from "@/server/auth/service";
+import { database } from "@/server/core/db";
 import { arabicNumber } from "@/lib/catalog";
 import { cairoDate } from "@/lib/time";
 

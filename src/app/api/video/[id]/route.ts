@@ -3,12 +3,16 @@ import { createReadStream } from "node:fs";
 import { stat } from "node:fs/promises";
 import { Readable } from "node:stream";
 import path from "node:path";
-import { identity, requestToken } from "@/server/auth";
-import { transaction } from "@/server/db";
-import { learningContext, validateWatch, watchCookie } from "@/server/learning";
-import { errorResponse, privateHeaders } from "@/server/http";
-import { uuid } from "@/server/admin-catalog";
-import { denied } from "@/server/errors";
+import { identity, requestToken } from "@/server/auth/service";
+import { transaction } from "@/server/core/db";
+import {
+  learningContext,
+  validateWatch,
+  watchCookie,
+} from "@/server/learning/service";
+import { errorResponse, privateHeaders } from "@/server/core/http";
+import { uuid } from "@/server/catalog/admin";
+import { denied } from "@/server/core/errors";
 export const runtime = "nodejs";
 export async function GET(
   request: Request,
